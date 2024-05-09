@@ -8,13 +8,8 @@ import json
 from .vehicle import *
 
 class Node:
-    def __init__(self, id, tw_start=None, tw_end=None, earliness=None, lateness=None):
+    def __init__(self, id):
         self.id = id
-        self.drone_serve = None # True if drone can serve this customer, else False
-        self.tw_start = tw_start
-        self.tw_end = tw_end
-        self.earliness = earliness
-        self.lateness = lateness
         self.links = []
     
 class Link:
@@ -32,6 +27,7 @@ class Network:
         self.links = [] # list of links between nodes
         self.trucks = {} # list of trucks 
         self.drones = {} # list of drones
+        
         
     def add_depot_node(self, id):
         depot_node = Node(id)
@@ -60,8 +56,7 @@ class Network:
         for link in link_list:
             self.add_link(link.u, link.v, link.truck_dist, link.drone_dist)
             
-    def add_truck_to_network(self, trucks):
+    def add_vehicle_to_network(self, trucks):
         for truck in trucks:
             ...
-    def add_drone_to_network(self):
-        ...
+ 

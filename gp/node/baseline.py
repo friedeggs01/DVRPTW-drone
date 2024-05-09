@@ -3,9 +3,8 @@ import numpy as np
 class Node:	# Base class with general functionalities
 
 	def __init__(self):
-		self.fitness = np.inf
 		self.parent = None
-		self.arity = 0	# arity is the number of expected inputs
+		self.arity = 0	# arity is the number of subtrees
 		self._children = []
 
 	def GetSubtree( self ):
@@ -22,6 +21,9 @@ class Node:	# Base class with general functionalities
 		self._children.append(N)
 		N.parent = self
 
+	def RemoveChild(self):
+		self._children = []
+
 	def DetachChild( self, N ):
 		assert(N in self._children)
 		for i, c in enumerate(self._children):
@@ -36,6 +38,9 @@ class Node:	# Base class with general functionalities
 		N.parent = self
 
 	def GetOutput( self, X ):
+		return None
+	
+	def GetSurrogateOutput( self, X ):
 		return None
 
 	def GetDepth(self):

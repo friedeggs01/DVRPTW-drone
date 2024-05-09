@@ -1,0 +1,7 @@
+number of customers: 10, 20, 50, 100
+number of vehicles: 1, 2, 6, 12
+speed of truck: 35km/h
+speed of drone 50km/h with endurance: 30, 60 min, lauching time or receiving time: 1 min
+location of depot is assumed to be at the center of the area
+distance from node i to j travel by truck and drone
+service level: 0.8

@@ -1,7 +1,6 @@
 from .baseline import Node
 import numpy as np
-class AddNode(Node):
-	
+class AddNode(Node):	
 	def __init__(self):
 		super(AddNode,self).__init__()
 		self.arity = 2
@@ -9,12 +8,20 @@ class AddNode(Node):
 	def __repr__(self):
 		return '+'
 
+	def getSymbol(self):
+		return "AddNode"
+
 	def _GetHumanExpressionSpecificNode( self, args ):
 		return '( ' + args[0] + ' + ' + args[1] + ' )'
 
 	def GetOutput( self, X ):
 		X0 = self._children[0].GetOutput( X )
 		X1 = self._children[1].GetOutput( X )
+		return X0 + X1
+	
+	def GetSurrogateOutput( self, X ):
+		X0 = self._children[0].GetSurrogateOutput( X )
+		X1 = self._children[1].GetSurrogateOutput( X )
 		return X0 + X1
 
 class SubNode(Node):
@@ -25,12 +32,20 @@ class SubNode(Node):
 	def __repr__(self):
 		return '-'
 
+	def getSymbol(self):
+		return "SubNode"
+
 	def _GetHumanExpressionSpecificNode( self, args ):
 		return '( ' + args[0] + ' - ' + args[1] + ' )'
 
 	def GetOutput( self, X ):
 		X0 = self._children[0].GetOutput( X )
 		X1 = self._children[1].GetOutput( X )
+		return X0 - X1
+	
+	def GetSurrogateOutput( self, X ):
+		X0 = self._children[0].GetSurrogateOutput( X )
+		X1 = self._children[1].GetSurrogateOutput( X )
 		return X0 - X1
 
 class MulNode(Node):
@@ -41,12 +56,20 @@ class MulNode(Node):
 	def __repr__(self):
 		return '*'
 
+	def getSymbol(self):
+		return "MulNode"
+
 	def _GetHumanExpressionSpecificNode( self, args ):
 		return '( ' + args[0] + ' * ' + args[1] + ' )'
 
 	def GetOutput( self, X ):
 		X0 = self._children[0].GetOutput( X )
 		X1 = self._children[1].GetOutput( X )
+		return X0 * X1
+	
+	def GetSurrogateOutput( self, X ):
+		X0 = self._children[0].GetSurrogateOutput( X )
+		X1 = self._children[1].GetSurrogateOutput( X )
 		return X0 * X1
 	
 class DivNode(Node):
@@ -57,12 +80,21 @@ class DivNode(Node):
 	def __repr__(self):
 		return '/'
 
+	def getSymbol(self):
+		return "DivNode"
 	def _GetHumanExpressionSpecificNode( self, args ):
 		return '( ' + args[0] + ' / ' + args[1] + ' )'
 
 	def GetOutput( self, X ):
 		X0 = self._children[0].GetOutput( X )
 		X1 = self._children[1].GetOutput( X )
+		if X1 == 0:
+			return 1
+		return X0 /X1
+	
+	def GetSurrogateOutput( self, X ):
+		X0 = self._children[0].GetSurrogateOutput( X )
+		X1 = self._children[1].GetSurrogateOutput( X )
 		if X1 == 0:
 			return 1
 		return X0 /X1
@@ -74,7 +106,10 @@ class MaxNode(Node):
 
     def __repr__(self):
         return 'Max'
-
+    
+    def getSymbol(self):
+        return "MaxNode"
+    
     def _GetHumanExpressionSpecificNode( self, args ):
         return 'Max( ' + args[0] + ',' + args[1] + ' )'
 
@@ -82,6 +117,14 @@ class MaxNode(Node):
         X0 = self._children[0].GetOutput( X )
         X1 = self._children[1].GetOutput( X )
         return max(X0 , X1)
+
+    def GetSurrogateOutput( self, X ):
+        X0 = self._children[0].GetSurrogateOutput( X )
+        X1 = self._children[1].GetSurrogateOutput( X )
+        return max(X0 , X1)	
+
+
+
 class MinNode(Node):
     def __init__(self):
         super(MinNode,self).__init__()
@@ -89,6 +132,8 @@ class MinNode(Node):
 
     def __repr__(self):
         return 'Min'
+    def getSymbol(self):
+        return "MinNode"
 
     def _GetHumanExpressionSpecificNode( self, args ):
         return 'Min( ' + args[0] + ' ,' + args[1] + ' )'
@@ -97,6 +142,13 @@ class MinNode(Node):
         X0 = self._children[0].GetOutput( X )
         X1 = self._children[1].GetOutput( X )
         return min(X0 , X1)
+	
+    def GetSurrogateOutput( self, X ):
+        X0 = self._children[0].GetSurrogateOutput( X )
+        X1 = self._children[1].GetSurrogateOutput( X )
+        return min(X0 , X1)
+	
+
 class AnalyticQuotientNode(Node):
 	def __init__(self):
 		super(AnalyticQuotientNode,self).__init__()
