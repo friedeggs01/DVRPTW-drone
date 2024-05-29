@@ -2,6 +2,19 @@ from .baseline import Node
 
 import numpy as np
 
+# Arrival time of request
+class ATR(Node):
+    def __init__(self):
+         super(ATR,self).__init__()
+    def __repr__(self):
+        return "ATR"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "ATR"
+    def getSymbol(self):
+        return "ATR"
+    def GetOutput(self, X):
+        return X.r.arrival
+
 # Start date of request
 class SDR(Node):
     def __init__(self):
@@ -111,3 +124,35 @@ class DRB(Node):
 # customer demand (maybe not because we will solve stochastic demand problem)
 
 
+ ##############################################################   
+class Rand(Node):
+    def __init__(self):
+        super(Rand, self).__init__()
+    def __repr__(self):
+        return "Rand"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "Rand"
+    def getSymbol(self):
+        return "Rand"
+    def GetOutput(self, X):
+        return np.random.rand()
+      
+class Const(Node):
+    def __init__(self):
+        super(Const, self).__init__()
+        self.value = np.random.uniform(0, 1)
+    def __repr__(self):
+        return "Const"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "Const"
+    def getSymbol(self):
+        return "Const"
+    def GetOutput(self, X):
+        return self.value
+    def GetSurrogateOutput(self, X):
+        return self.value 
+
+    def mutate_value(self):
+        self.value = self.value + np.random.normal(0, 0.1)           
+
+####################################################################

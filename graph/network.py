@@ -4,59 +4,115 @@ import random
 import networkx as nx
 import pandas as pd
 import json
+from copy import deepcopy
 
 from .vehicle import *
 
 class Node:
-    def __init__(self, id):
+    def __init__(self, id, x, y):
         self.id = id
+        self.x = x
+        self.y = y
         self.links = []
     
 class Link:
-    def __init__(self, u, v, truck_dist, drone_dist):
+    def __init__(self, u, v, dist):
         self.u = u # first node
         self.v = v # second node
-        self.truck_dist = truck_dist
-        self.drone_dist = drone_dist
+        self.dist = dist
     
 class Network:
-    def __init__(self):
+    def __init__(self, customers, links, num_vehicle, truck_capacity, drone_capacity, drone_endurance, requests):
         self.make_span = 0
-        self.carbon_emission = 0
-        self.nodes = {} # list of all nodes
-        self.links = [] # list of links between nodes
-        self.trucks = {} # list of trucks 
-        self.drones = {} # list of drones
+        self.carbon_emission = {}
+        self.WAER = 1.2603 # kg/mile
+        self.PGFER = 0.0003773 # kg/Wh
+        self.AER = 3.3333 # Wh/mile
+        self.nodes = customers
+        self.links = links # list of links between nodes
+        self.num_vehicle = num_vehicle # number of truck
+        self.truck_capacity = truck_capacity
+        self.drone_capacity = drone_capacity
+        self.drone_endurance = drone_endurance
         
+        self.requests = requests
         
-    def add_depot_node(self, id):
-        depot_node = Node(id)
-        self.nodes[id] = depot_node
-        
-    def add_customer_node(self, id, tw_start, tw_end, earliness, lateness):
-        customer_node = Node(id, tw_start, tw_end, earliness, lateness)
-        self.nodes[id] = customer_node
-        
-    def add_node_to_network(self, node_list):
-        for node in node_list:
-            if node.id == 0:
-                self.add_depot_node(node.id)
-            else:
-                self.add_customer_node(node.id, node.tw_start, node.tw_end, node.earliness, node.lateness)
-    
-    def add_link(self, u, v, truck_dist, drone_dist):
-        u = self.nodes[u]
-        v = self.nodes[v]
-        link = Link(u, v, truck_dist, drone_dist)
-        self.links.append(link)
-        link.u.links.append(link)
-        link.v.links.append(link)
-    
-    def add_link_to_network(self, link_list):
-        for link in link_list:
-            self.add_link(link.u, link.v, link.truck_dist, link.drone_dist)
+        self.trucks = {}
+        for i in range(num_vehicle):
+            self.trucks[i] = Truck(i, truck_capacity)
             
-    def add_vehicle_to_network(self, trucks):
-        for truck in trucks:
-            ...
+        self.drones = {}
+        for i in range(num_vehicle):
+            self.drones[i] = Drone(i, drone_capacity)
+        self.routes = {}
+        for i in range(num_vehicle):
+            self.routes[i] = [10000]
+        
+    def update_cost(self, vehicle_id):
+        
+        # calculate lại khí carbon tạo ra bởi cặp truck-drone
+        self.carbon_emission[vehicle_id] = 0 
+        truck_route = []
+        drone_route = []
+        pos = []
+        for i, customer in self.routres[vehicle_id]:
+            if isinstance(customer, int):
+                truck_route.append(customer)
+            else:
+                pos.append[i]
+                drone_route.append(customer)
+        for i in range(truck_route):
+            current_customer = truck_route[i]
+            next_customer = truck_route[i+1]
+            self.carbon_emission += self.WAER * self.links[current_customer][next_customer].dist
+        for i in range(drone_route):
+            current_customer = drone_route[i]
+            next_customer = drone_route[i+1]
+            self.carbon_emission += self.PGFER * self.AER * self.links[current_customer][next_customer].dist
+        self.carbon_emission += self.PGFER * self.AER * self.links[self.routes[vehicle_id][pos[0]-1]][pos[0]].dist
+        self.carbon_emission += self.PGFER * self.AER * self.links[self.routes[vehicle_id][pos[-1]]][pos[-1]+1].dist
+        
+        return self.carbon_emission
+        
+    def check_constraint(self, request, vehicle_id): # tìm đường đầu tiên thỏa mãn constraint cho request
+        network = deepcopy(self)
+        for pos in range(len(self.routes[vehicle_id])): 
+            if self.check_timewindow(network, pos, request, vehicle_id) == True and self.check_vehiclecapacity(network, pos, request, vehicle_id) == True:
+                return True, pos
+        return False
+    
+    def check_timewindow(network, pos, request, vehicle_id):
+        # request được chèn vào vị trí pos trên tuyến đường của vehicle_id
+        truck_route = []
+        drone_route = []
+        pos = []
+        for i, customer in network.routres[vehicle_id]:
+            if isinstance(customer, int):
+                truck_route.append(customer)
+            else:
+                pos.append[i]
+                drone_route.append(customer)
+        for i, cus in network.routes[vehicle_id]:
+            # start_ser thời gian kết thúc phục vụ khách hàng cũ + thời gian di chuyển đến khách hàng mới
+            if i == 0:
+                start_ser = network.links[network.routes[vehicle_id][pos[0]-1]][pos[0]].dist / network.truck
+            else:
+                start_ser = network.links[network.routes[vehicle_id][pos[-1]]][pos[-1]+1].dist
+            end_ser = start_ser + network.requests[network.routes[vehicle_id]].service_time
+            if start_ser < network.requests[network.routes[vehicle_id]].earliness:
+                return False
+            if end_ser > network.requests[network.routes[vehicle_id]].lateness:
+                return False 
+        return True
+    
+    def check_vehiclecapacity(network, pos, request, vehicle_id):
+        # trừ dần capacity của xe
+        for cus in range(len(network.routes[vehicle_id])):
+            if network.trucks[vehicle_id].remain_capacity > network.requests[cus].customer_demand:
+                network.trucks[vehicle_id].remain_capacity -= network.requests[cus].customer_demand
+            else:
+                return False
+        return True  
+        
+        
  

@@ -22,3 +22,25 @@ class Population:
         if len(indi_list) != self.pop_size:
             raise ValueError("The length of the list of individuals is not equal to the population size")
         self.indivs = deepcopy(indi_list)
+        
+    def random_init(self):
+        curr_max_depth = self.min_height
+        init_depth_interval = self.pop_size / (self.initialization_max_tree_height - self.min_height + 1)
+        next_depth_interval = init_depth_interval
+        i = 0
+        pc_check = set()
+        while i < self.pop_size:
+            if i >= next_depth_interval:
+                next_depth_interval += init_depth_interval
+                curr_max_depth += 1
+            inv = individual_init(self.min_height, curr_max_depth, self.determining_tree, self.functions,
+                                  self.determining_terminals, self.ordering_terminals, self.choosing_terminals)
+            pc_indi = self.situation_surrogate.cal_pc(inv)
+            pc_indi_tuple = tuple(pc_indi)
+            if pc_indi_tuple not in pc_check:
+                pc_check.add(pc_indi_tuple)
+                inv.pc = pc_indi
+                self.indivs.append(inv)
+                i += 1
+            else:
+                continue

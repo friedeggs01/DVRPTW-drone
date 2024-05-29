@@ -1,22 +1,22 @@
-from data_info.read_data import *
-from network.network import Network
+from data.read_data import *
+from graph.network import Network
 from utils.utils import *
 from gp.population.population import *
 import multiprocessing     
 import random
 from utils.initialization import individual_init
-from utils.selection import natural_selection
+
 
 class SingleObjectivePopulation(Population):
-    def __init__(self, pop_size, functions, determining_terminals, ordering_terminals, choosing_terminals, 
+    def __init__(self, pop_size, functions, decision_terminals, choosing_terminals, routing_terminals, 
                  min_height, max_height, initialization_max_tree_height, 
                  num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                 determining_tree):
+                 decision_tree):
         super().__init__(pop_size, 
-                 functions, determining_terminals, ordering_terminals, choosing_terminals, 
+                 functions, decision_terminals, choosing_terminals, routing_terminals, 
                  min_height, max_height, initialization_max_tree_height, 
                  num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                 determining_tree)
+                 decision_tree)
 
    
     def gen_offspring(self, crossover_operator_list, mutation_operator_list):
@@ -25,20 +25,20 @@ class SingleObjectivePopulation(Population):
             indi1, indi2 = random.choices(self.indivs, k=2)
             if np.random.random() < self.crossover_rate:
                 for crossover_operator in crossover_operator_list:
-                    children1, children2 = crossover_operator(indi1, indi2, self.min_height, self.max_height, self.determining_tree)
+                    children1, children2 = crossover_operator(indi1, indi2, self.min_height, self.max_height, self.decision_tree)
                     offspring.extend([children1, children2])
             if np.random.random() < self.mutation_rate:
                 for mutation_operator in mutation_operator_list:
                     mutant1 = mutation_operator(indi1, self.functions, 
-                                                self.determining_terminals, self.ordering_terminals, self.choosing_terminals, 
-                                                self.min_height, self.max_height, self.determining_tree)
+                                                self.decision_terminals, self.choosing_terminals, self.routing_terminals, 
+                                                self.min_height, self.max_height, self.decision_tree)
                     mutant2 = mutation_operator(indi2, self.functions, 
-                                                self.determining_terminals, self.ordering_terminals, self.choosing_terminals, 
-                                                self.min_height, self.max_height, self.determining_tree)
+                                                self.decision_terminals, self.choosing_terminals, self.routing_terminals, 
+                                                self.min_height, self.max_height, self.decision_tree)
                     offspring.extend([mutant1, mutant2])
             if np.random.random() < 1 - self.crossover_rate - self.mutation_rate:
-                indi = individual_init(self.min_height, self.max_height, self.determining_tree, self.functions,
-                                       self.determining_terminals, self.ordering_terminals, self.choosing_terminals)
+                indi = individual_init(self.min_height, self.max_height, self.decision_tree, self.functions,
+                                       self.decision_terminals, self.choosing_terminals, self.routing_terminals)
                 offspring.append(indi)
         return offspring
     
@@ -51,22 +51,22 @@ class SingleObjectivePopulation(Population):
         return self.indivs[0]
 
 
-def trainSingleObjective(processing_number, indi_list,  network, vnf_list, request_list,
-                functions, terminal_determining,terminal_ordering,  terminal_choosing, 
+def trainSingleObjective(processing_number, indi_list,  network, request_list,
+                functions, terminal_decision,terminal_choosing,  terminal_routing, 
                 pop_size, max_gen,  min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, determining_tree, alpha):
+                crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha):
     print("Số request:",len(request_list))
-    pop = SingleObjectivePopulation(pop_size, functions, terminal_determining, terminal_ordering, terminal_choosing, 
+    pop = SingleObjectivePopulation(pop_size, functions, terminal_decision, terminal_choosing, terminal_routing, 
                         min_height, max_height, initialization_max_height, 
                         num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                        determining_tree)
-    # pop.initialize()
+                        decision_tree)
+
     pop.pre_indi_gen(indi_list)
     pool = multiprocessing.Pool(processes=processing_number)
     arg = []
     for indi in pop.indivs:
-        arg.append((indi, network, request_list, vnf_list))
+        arg.append((indi, network, request_list))
     result = pool.starmap(calFitness, arg)
     for indi, value in zip(pop.indivs, result):
         indi.objectives[0],indi.objectives[1], indi.reject, indi.cost = value
@@ -79,7 +79,7 @@ def trainSingleObjective(processing_number, indi_list,  network, vnf_list, reque
         offspring = pop.gen_offspring(crossover_operator_list, mutation_operator_list)
         arg = []
         for indi in offspring:
-            arg.append((indi, network, request_list, vnf_list))
+            arg.append((indi, network, request_list))
         result = pool.starmap(calFitness, arg)
         for indi, value in zip(offspring, result):
             indi.objectives[0],indi.objectives[1],  indi.reject, indi.cost = value
@@ -92,22 +92,15 @@ def trainSingleObjective(processing_number, indi_list,  network, vnf_list, reque
     pool.close()
     return best
 
-def run_SingleObjective( data_path, processing_num, indi_list, num_train,  
-                functions, terminal_determining, terminal_ordering, terminal_choosing, 
+def run_SingleObjective(data_path, processing_num, indi_list, num_train,  
+                functions, terminal_decision, terminal_choosing, terminal_routing, 
                 pop_size, max_gen,  min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, determining_tree, alpha):
-    data = Read_data(data_path)
-    request_list = data.get_R()
-    vnf_list = data.get_F()
-    node_list = data.get_V()
-    link_node = data.get_E()
-
-    network = Network()
-    network.add_node_to_network(node_list)
-    network.add_link_to_network(link_node)
-    get_max_cost_vnf(network.MDC_nodes, vnf_list)
-        
+                crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha):
+    reader = Read_data()
+    network, request_list = reader.read(data_path)
+     
+    ##REVIEW - why need train and test?
     request_train = []
     request_test = []
     for request in request_list:
@@ -115,13 +108,14 @@ def run_SingleObjective( data_path, processing_num, indi_list, num_train,
             request_train.append(request)
         else: 
             request_test.append(request)
-    best = trainSingleObjective(processing_num, indi_list,  network, vnf_list, request_train,
-                    functions, terminal_determining,terminal_ordering,  terminal_choosing, 
+
+    best = trainSingleObjective(processing_num, indi_list,  network, request_train,
+                    functions, terminal_decision,terminal_choosing,  terminal_routing, 
                     pop_size, max_gen,  min_height, max_height, initialization_max_height,  
                     num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, determining_tree, alpha)
-    # Store the Pareto front and objective Pareto
-    normal_reject, normal_cost, reject, cost = calFitness(best, network, request_test, vnf_list)
+                crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha)
+
+    normal_reject, normal_cost, reject, cost = calFitness(best, network, request_test)
     print(normal_reject, normal_cost, reject, cost)
     
     pool = multiprocessing.Pool(processes=processing_num)

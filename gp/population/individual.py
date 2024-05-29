@@ -5,5 +5,6 @@ class Individual:
         self.choosing_tree = choosing_tree
         self.routing_tree = routing_tree
         self.objective = None
+        
 
 
