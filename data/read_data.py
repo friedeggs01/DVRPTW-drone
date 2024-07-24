@@ -29,7 +29,7 @@ class Read_data:
                     num, x, y, demand, tw_start, tw_end, service_time, drone_served = map(int,all[i+3].strip().split())
                     print(num, x, y, demand, tw_start, tw_end, service_time, drone_served)
 
-                    req = Request(customer_id= int(num),x= x, y= y, customer_demand= demand,arrival_time=arrival_time, tw_start= tw_start, tw_end= tw_end, earliness=tw_start-60, lateness=tw_end+60, drone_serve=drone_served)
+                    req = Request(customer_id= int(num),x= x, y= y, customer_demand= demand,arrival_time=arrival_time, service_time=service_time, tw_start= tw_start, tw_end= tw_end, earliness=tw_start-60, lateness=tw_end+60, drone_serve=drone_served)
                     requests.append(req) 
                     node = Node(id = int(num), x=x, y=y)
                     customers[int(num)] = node
@@ -42,9 +42,9 @@ class Read_data:
             for j in range (num+1):
                 print(i, j, requests[i].x, requests[i].y)
                 dist = np.sqrt((requests[i].x - requests[j].x)**2 + (requests[i].y - requests[j].y)**2)
-                links[i][j] = Link(customers[i], customers[j], dist)
-                links[j][i] = Link(customers[i], customers[j], dist)
-        self.network = Network(customers, links, self.num_vehicle, self.truck_capacity, self.drone_capacity, self.drone_endurance)
+                links[i][j] = dist
+                links[j][i] = dist
+        self.network = Network(customers, links, self.num_vehicle, self.truck_capacity, self.drone_capacity, self.drone_endurance, requests)
         #bo depot ra khoi request
         requests.remove(requests[0])
         return self.network, requests    

@@ -11,12 +11,12 @@ class SingleObjectivePopulation(Population):
     def __init__(self, pop_size, functions, decision_terminals, choosing_terminals, routing_terminals, 
                  min_height, max_height, initialization_max_tree_height, 
                  num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                 decision_tree):
+                ):
         super().__init__(pop_size, 
                  functions, decision_terminals, choosing_terminals, routing_terminals, 
                  min_height, max_height, initialization_max_tree_height, 
                  num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                 decision_tree)
+                 )
 
    
     def gen_offspring(self, crossover_operator_list, mutation_operator_list):
@@ -51,25 +51,28 @@ class SingleObjectivePopulation(Population):
         return self.indivs[0]
 
 
-def trainSingleObjective(processing_number, indi_list,  network, request_list,
-                functions, terminal_decision,terminal_choosing,  terminal_routing, 
-                pop_size, max_gen,  min_height, max_height, initialization_max_height,  
+def trainSingleObjective(processing_number, indi_list, network, request_list,
+                functions, terminal_decision,terminal_choosing, terminal_routing, 
+                pop_size, max_gen, min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha):
+                crossover_operator_list, mutation_operator_list, calFitness, choosing_tree, alpha):
     print("Số request:",len(request_list))
     pop = SingleObjectivePopulation(pop_size, functions, terminal_decision, terminal_choosing, terminal_routing, 
                         min_height, max_height, initialization_max_height, 
                         num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                        decision_tree)
+                        )
 
     pop.pre_indi_gen(indi_list)
     pool = multiprocessing.Pool(processes=processing_number)
     arg = []
+    # for indi in pop.indivs:
+    #     arg.append((indi, network, request_list))
+    # print("------arg: ", arg)
+    # result = pool.starmap(calFitness, arg)
+    # for indi, value in zip(pop.indivs, result):
+    #     indi.objectives = value
     for indi in pop.indivs:
-        arg.append((indi, network, request_list))
-    result = pool.starmap(calFitness, arg)
-    for indi, value in zip(pop.indivs, result):
-        indi.objectives[0],indi.objectives[1], indi.reject, indi.cost = value
+        indi.objectives = calFitness(indi, network, request_list)
     print("Khởi tạo xong ")  
     
     best = pop.take_best(alpha)
@@ -100,7 +103,6 @@ def run_SingleObjective(data_path, processing_num, indi_list, num_train,
     reader = Read_data()
     network, request_list = reader.read(data_path)
      
-    ##REVIEW - why need train and test?
     request_train = []
     request_test = []
     for request in request_list:
@@ -112,7 +114,7 @@ def run_SingleObjective(data_path, processing_num, indi_list, num_train,
     best = trainSingleObjective(processing_num, indi_list,  network, request_train,
                     functions, terminal_decision,terminal_choosing,  terminal_routing, 
                     pop_size, max_gen,  min_height, max_height, initialization_max_height,  
-                    num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
+                    num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
                 crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha)
 
     normal_reject, normal_cost, reject, cost = calFitness(best, network, request_test)

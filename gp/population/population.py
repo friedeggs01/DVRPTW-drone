@@ -1,7 +1,7 @@
 from copy import deepcopy
 class Population:
     def __init__(self, pop_size, 
-                 functions, decision_terminals, choosing_terminals, 
+                 functions, decision_terminals, choosing_terminals, routing_terminals, 
                  min_depth=2, max_depth=8, initialization_max_tree_depth=8, 
                  num_of_tour_particips=2, tournament_prob=0.8, crossover_rate=0.9, mutation_rate=0.1):
         self.history = []

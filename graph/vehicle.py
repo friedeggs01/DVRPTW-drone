@@ -5,7 +5,7 @@ class Truck:
         self.capacity = capacity
         self.velocity = velocity
         self.position = {}
-        self.remain_capaciy = {}
+        self.remain_capacity = {}
         for t in range(1000):
             self.remain_capaciy = {self.capacity}
     

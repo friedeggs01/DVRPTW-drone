@@ -7,7 +7,7 @@ def get_request_run(request_list, reject, T):
     request_reject = []
     for request in request_list:
         if request.arrival == T :
-            if request.lifetime > T:
+            if request.tw_end > T:
                 request_processing.append(request)
             else:
                 reject += 1

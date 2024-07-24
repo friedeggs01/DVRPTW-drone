@@ -55,7 +55,7 @@ class Network:
         truck_route = []
         drone_route = []
         pos = []
-        for i, customer in self.routres[vehicle_id]:
+        for i, customer in self.routes[vehicle_id]:
             if isinstance(customer, int):
                 truck_route.append(customer)
             else:
