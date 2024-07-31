@@ -38,17 +38,17 @@ class Network:
         self.requests = requests
         
         self.trucks = {}
-        self.truck_routes = {}
+        self.routes = {}
         for i in range(num_vehicle):
             self.trucks[i] = Truck(i, truck_capacity)
-            self.truck_routes[i] = []
             
         self.drones = {}
-        self.drone_routes = {}
         for i in range(num_vehicle):
             self.drones[i] = Drone(i, drone_capacity)
-            self.drone_routes[i] = []
-
+            
+        for i in range(num_vehicle):
+            self.routes[i] = [1000]
+    
         
     def update_cost(self, vehicle_id):
         
