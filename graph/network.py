@@ -55,9 +55,11 @@ class Network:
         # calculate lại khí carbon tạo ra bởi cặp truck-drone
         self.carbon_emission[vehicle_id] = 0 
         pos = []
-        if len(self.truck_drones[vehicle_id])
+        if len(self.truck_routes[vehicle_id]) == 1:
+            current_customer = 0
+            next_customer = self.truck_routes[vehicle_id][i+1]
+            self.carbon_emission += self.WAER * self.links[current_customer][next_customer]
         for i in range(len(self.truck_routes[vehicle_id])):
-            
             current_customer = self.truck_routes[vehicle_id][i]
             next_customer = self.truck_routes[vehicle_id][i+1]
             print("current_customer: ", current_customer)
