@@ -54,27 +54,41 @@ class Network:
         
         # calculate lại khí carbon tạo ra bởi cặp truck-drone
         self.carbon_emission[vehicle_id] = 0 
-        pos = []
-        if len(self.truck_routes[vehicle_id]) == 1:
+        truck_route = []
+        drone_route = []
+        pos = []                
+        if len(truck_route) < 2:
             current_customer = 0
-            next_customer = self.truck_routes[vehicle_id][i+1]
-            self.carbon_emission += self.WAER * self.links[current_customer][next_customer]
-        for i in range(len(self.truck_routes[vehicle_id])):
-            current_customer = self.truck_routes[vehicle_id][i]
-            next_customer = self.truck_routes[vehicle_id][i+1]
-            print("current_customer: ", current_customer)
-            print("next_customer: ", next_customer)
-            print("self.links[current_customer][next_customer]: ", self.links[current_customer][next_customer])
-            print("self.carbon_emission: ", self.carbon_emission)
-            self.carbon_emission += self.WAER * self.links[current_customer][next_customer]
-        for i in range(len(self.drone_routes)):
-            current_customer = self.drone_routes[i]
-            next_customer = self.drone_routes[i+1]
-            self.carbon_emission += self.PGFER * self.AER * self.links[current_customer][next_customer]
-        self.carbon_emission += self.PGFER * self.AER * self.links[self.routes[vehicle_id][pos[0]-1]][pos[0]]
-        self.carbon_emission += self.PGFER * self.AER * self.links[self.routes[vehicle_id][pos[-1]]][pos[-1]+1]
+            next_customer = self.routes[vehicle_id][0]
+            self.carbon_emission[vehicle_id] += self.WAER * self.links[current_customer][next_customer]
+        else:
+            # Extract the route of truck from encode
+            index_1000 = self.routes[vehicle_id].index(1000)
+            number_after_1000 = self.routes[vehicle_id][index_1000 + 1]
+            truck_route = [num for num in self.routes[vehicle_id][:index_1000] if num != number_after_1000]
+
+            # Extract the route of drone from encode
+            index_after_number = self.routes[vehicle_id].index(number_after_1000)
+            drone_route = []
+            if index_after_number > 0:
+                drone_route.append(self.routes[vehicle_id][index_after_number - 1])
+            drone_route.append(self.routes[vehicle_id][index_after_number])
+            if index_after_number < len(self.routes[vehicle_id]) - 1:
+                drone_route.append(self.routes[vehicle_id][index_after_number + 1])
+            
+            # Calculate the carbon emission of each route
+            for i in range(len(truck_route)):
+                current_customer = truck_route[i]
+                next_customer = truck_route[i+1]
+                self.carbon_emission[vehicle_id] += self.WAER * self.links[current_customer][next_customer]
+            for i in range(drone_route):
+                current_customer = drone_route[i]
+                next_customer = drone_route[i+1]
+                self.carbon_emission[vehicle_id] += self.PGFER * self.AER * self.links[current_customer][next_customer]
+            self.carbon_emission[vehicle_id] += self.PGFER * self.AER * self.links[self.routes[vehicle_id][pos[0]-1]][pos[0]]
+            self.carbon_emission[vehicle_id] += self.PGFER * self.AER * self.links[self.routes[vehicle_id][pos[-1]]][pos[-1]+1]
         
-        return self.carbon_emission
+        return self.carbon_emission[vehicle_id]
         
     def check_constraint(self, request, vehicle_id): # tìm đường đầu tiên thỏa mãn constraint cho request
         network = deepcopy(self)
@@ -83,12 +97,29 @@ class Network:
                 return True, pos
         return False
     
-    def check_timewindow(network, pos, request, vehicle_id):
+    def check_timewindow(self, network, pos, request, vehicle_id):
         # request được chèn vào vị trí pos trên tuyến đường của vehicle_id
-        truck_route_copy = network.truck_route[vehicle_id]
-        truck_route_copy.insert(pos, request.customer_id)
-        print("truck_route_copy: ", truck_route_copy)
-        for i, cus in enumerate(network.truck_route_copy):
+        truck_route = []
+        drone_route = []
+    
+        # Extract the route of truck from encode
+        index_1000 = self.routes[vehicle_id].index(1000)
+        number_after_1000 = self.routes[vehicle_id][index_1000 + 1]
+        truck_route = [num for num in self.routes[vehicle_id][:index_1000] if num != number_after_1000]
+
+        # Extract the route of drone from encode
+        index_after_number = self.routes[vehicle_id].index(number_after_1000)
+        drone_route = []
+        if index_after_number > 0:
+            drone_route.append(self.routes[vehicle_id][index_after_number - 1])
+        drone_route.append(self.routes[vehicle_id][index_after_number])
+        if index_after_number < len(self.routes[vehicle_id]) - 1:
+            drone_route.append(self.routes[vehicle_id][index_after_number + 1])
+        
+        # Insert new customer with specific position
+        truck_route.insert(pos, request.customer_id)
+        
+        for i, cus in enumerate(truck_route):
             # start_ser thời gian kết thúc phục vụ khách hàng cũ + thời gian di chuyển đến khách hàng mới
             if i == 0:
                 start_ser = network.links[network.routes[vehicle_id][pos[0]-1]][pos[0]] / network.truck

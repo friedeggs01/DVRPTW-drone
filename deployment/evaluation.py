@@ -46,9 +46,13 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list):
             veh_with_highest_value = max(value_of_choosing_gp, key=value_of_choosing_gp.get)
             
             # find the route by insert new customer into existed route of the truck-drone
-            print("veh_with_highest_value: ", veh_with_highest_value)
-            print("network.truck_routes[veh_with_highest_value]: ", network.truck_routes[veh_with_highest_value])
-            if len(network.truck_routes[veh_with_highest_value]) < 2:
+            print("request.customer_id: ", request.customer_id)
+            print("network.routes[veh_with_highest_value]: ", network.routes[veh_with_highest_value])
+            
+            if len(network.routes[veh_with_highest_value]) < 2:
+                index = network.routes[veh_with_highest_value].index(10000) # idea là ban đầu khởi tạo tất cả sẽ có 10000, nếu phương tiện chưa thăm chỗ nào thì gán customer đấy cho truck trước tiên
+                network.routes[veh_with_highest_value].insert(index, request.customer_id)
+                print("network.routes[veh_with_highest_value] after insert: ", network.routes[veh_with_highest_value])
                 
                 network.truck_routes[veh_with_highest_value].append(request.customer_id)
                 print("network.truck_routes[veh_with_highest_value] after: ", network.truck_routes[veh_with_highest_value])
@@ -59,10 +63,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list):
                 request.serving_end = request.serving_start + request.service_time
                 
                 for t in range(math.floor(request.serving_start), math.ceil(request.serving_end)):
-                    print("time: ", t)
-                    print("veh_with_highest_value: ", veh_with_highest_value)
-                    print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[1].remain_capacity[1])
-                    print("request.customer_demand: ", request.customer_demand)
+                    print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[veh_with_highest_value].remain_capacity[t])
                     network.trucks[veh_with_highest_value].remain_capacity[t] -= request.customer_demand
                     print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[veh_with_highest_value].remain_capacity[t])
 
