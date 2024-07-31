@@ -7,7 +7,7 @@ class Truck:
         self.position = {}
         self.remain_capacity = {}
         for t in range(1000):
-            self.remain_capaciy = {self.capacity}
+            self.remain_capacity[t] = self.capacity
     
 class Drone:
     def __init__(self, id, capacity, battery = 30, time_launch = 1, time_receive = 1, velocity = 50):

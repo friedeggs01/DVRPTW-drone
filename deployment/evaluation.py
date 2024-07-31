@@ -46,9 +46,13 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list):
             veh_with_highest_value = max(value_of_choosing_gp, key=value_of_choosing_gp.get)
             
             # find the route by insert new customer into existed route of the truck-drone
+            print("request.customer_id: ", request.customer_id)
+            print("network.routes[veh_with_highest_value]: ", network.routes[veh_with_highest_value])
+            
             if len(network.routes[veh_with_highest_value]) < 2:
                 index = network.routes[veh_with_highest_value].index(10000) # idea là ban đầu khởi tạo tất cả sẽ có 10000, nếu phương tiện chưa thăm chỗ nào thì gán customer đấy cho truck trước tiên
                 network.routes[veh_with_highest_value].insert(index, request.customer_id)
+                print("network.routes[veh_with_highest_value] after insert: ", network.routes[veh_with_highest_value])
                 
                 if (len(network.routes[veh_with_highest_value]) == 2): # chỉ có một customer, thời gian bắt đầu phục vụ sẽ bằng thời gian đi từ kho tới chỗ customer ấy
                     request.serving_start = network.links[0][network.routes[veh_with_highest_value][0]] / network.trucks[veh_with_highest_value].velocity
@@ -57,6 +61,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list):
                 request.serving_end = request.serving_start + request.service_time
                 
                 for t in range(math.floor(request.serving_start), math.ceil(request.serving_end)):
+                    print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[veh_with_highest_value].remain_capacity[t])
                     network.trucks[veh_with_highest_value].remain_capacity[t] -= request.customer_demand
                 cost_sum += network.update_cost(veh_with_highest_value)
             elif request.drone_serve == True and network.check_constraint(request, veh_with_highest_value):
