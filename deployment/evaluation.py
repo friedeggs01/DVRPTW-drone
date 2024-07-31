@@ -46,30 +46,36 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list):
             veh_with_highest_value = max(value_of_choosing_gp, key=value_of_choosing_gp.get)
             
             # find the route by insert new customer into existed route of the truck-drone
-            if len(network.routes[veh_with_highest_value]) < 2:
-                index = network.routes[veh_with_highest_value].index(10000) # idea là ban đầu khởi tạo tất cả sẽ có 10000, nếu phương tiện chưa thăm chỗ nào thì gán customer đấy cho truck trước tiên
-                network.routes[veh_with_highest_value].insert(index, request.customer_id)
+            print("veh_with_highest_value: ", veh_with_highest_value)
+            print("network.truck_routes[veh_with_highest_value]: ", network.truck_routes[veh_with_highest_value])
+            if len(network.truck_routes[veh_with_highest_value]) < 2:
                 
-                if (len(network.routes[veh_with_highest_value]) == 2): # chỉ có một customer, thời gian bắt đầu phục vụ sẽ bằng thời gian đi từ kho tới chỗ customer ấy
-                    request.serving_start = network.links[0][network.routes[veh_with_highest_value][0]] / network.trucks[veh_with_highest_value].velocity
-                if (len(network.routes[veh_with_highest_value]) == 3): # có hai customer nên thời gian bắt đầu phục vụ của customer thứ hai sẽ bằng thời gian đi từ 0->cus1->cus2
-                    request.serving_start = (network.links[0][network.routes[veh_with_highest_value][0]] + network.links[network.routes[veh_with_highest_value][0]][network.routes[veh_with_highest_value][1]]) / network.trucks[veh_with_highest_value].velocity
+                network.truck_routes[veh_with_highest_value].append(request.customer_id)
+                print("network.truck_routes[veh_with_highest_value] after: ", network.truck_routes[veh_with_highest_value])
+                if (len(network.truck_routes[veh_with_highest_value]) == 1): 
+                    request.serving_start = network.links[0][network.truck_routes[veh_with_highest_value][0]] / network.trucks[veh_with_highest_value].velocity
+                if (len(network.truck_routes[veh_with_highest_value]) == 2):
+                    request.serving_start = (network.links[0][network.truck_routes[veh_with_highest_value][0]] + network.links[network.truck_routes[veh_with_highest_value][0]][network.truck_routes[veh_with_highest_value][1]]) / network.trucks[veh_with_highest_value].velocity
                 request.serving_end = request.serving_start + request.service_time
                 
                 for t in range(math.floor(request.serving_start), math.ceil(request.serving_end)):
+                    print("time: ", t)
+                    print("veh_with_highest_value: ", veh_with_highest_value)
+                    print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[1].remain_capacity[1])
+                    print("request.customer_demand: ", request.customer_demand)
                     network.trucks[veh_with_highest_value].remain_capacity[t] -= request.customer_demand
-                cost_sum += network.update_cost(veh_with_highest_value)
+                    print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[veh_with_highest_value].remain_capacity[t])
+
             elif request.drone_serve == True and network.check_constraint(request, veh_with_highest_value):
-                index = network.routes[veh_with_highest_value].index(10000)
-                network.routes[veh_with_highest_value].insert(index, request.customer_id)
-                network.routes[veh_with_highest_value].append(request.customer_id)
-            elif network.check_constraint(request):
-                network.routes[veh_with_highest_value].append(request.customer_id)
-                cost_sum += network.update()
+                network.drone_routes[veh_with_highest_value].append(request.customer_id)
+                print("network.drone_routes[veh_with_highest_value].append(request.customer_id): ", network.drone_routes[veh_with_highest_value])
+            elif network.check_constraint(request, veh_with_highest_value):
+                network.truck_routes[veh_with_highest_value].append(request.customer_id)
+            cost_sum += network.update_cost(veh_with_highest_value)
             
         T = T + 1
     return cost_sum
 
 
 
-# route [2, 3, 4, 5, 6, 1000, 4]
+# route [2, 3, 4, 5, 6, 10000, 4]
