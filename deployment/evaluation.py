@@ -15,7 +15,6 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list):
     network_copy = deepcopy(network)
     request_list_copy = deepcopy(request_list)
     sum_request = len(request_list_copy)
-
     # Execution time slot
     T = request_list_copy[0].arrival
     reject = 0 # number of reject request
@@ -31,7 +30,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list):
         request_decision = []
         # Calculate value of GP for each request
         for request in request_processing:
-            
+            network.requests[request.customer_id] = request
             # decide the request is accepted or rejected
             value_of_decision_gp = decision_gp(T)
             if value_of_decision_gp < 0:
@@ -49,21 +48,21 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list):
             print("request.customer_id: ", request.customer_id)
             print("network.routes[veh_with_highest_value]: ", network.routes[veh_with_highest_value])
             
-            if len(network.routes[veh_with_highest_value]) < 2:
+            if len(network.routes[veh_with_highest_value]) < 3:
                 index = network.routes[veh_with_highest_value].index(1000) 
                 network.routes[veh_with_highest_value].insert(index, request.customer_id)
                 print("network.routes[veh_with_highest_value] after insert: ", network.routes[veh_with_highest_value])
                 
-                if (len(network.routes[veh_with_highest_value]) == 1): 
+                if (len(network.routes[veh_with_highest_value]) == 2): 
                     request.serving_start = network.links[0][network.routes[veh_with_highest_value][0]] / network.trucks[veh_with_highest_value].velocity
-                if (len(network.routes[veh_with_highest_value]) == 2):
+                if (len(network.routes[veh_with_highest_value]) == 3):
                     request.serving_start = (network.links[0][network.routes[veh_with_highest_value][0]] + network.links[network.routes[veh_with_highest_value][0]][network.routes[veh_with_highest_value][1]]) / network.trucks[veh_with_highest_value].velocity
                 request.serving_end = request.serving_start + request.service_time
                 
                 for t in range(math.floor(request.serving_start), math.ceil(request.serving_end)):
-                    print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[veh_with_highest_value].remain_capacity[t])
+                    # print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[veh_with_highest_value].remain_capacity[t])
                     network.trucks[veh_with_highest_value].remain_capacity[t] -= request.customer_demand
-                    print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[veh_with_highest_value].remain_capacity[t])
+                    # print("network.trucks[veh_with_highest_value].remain_capacity[t]: ", network.trucks[veh_with_highest_value].remain_capacity[t])
 
             elif request.drone_serve == True and network.check_constraint(request, veh_with_highest_value):
                 network.routes[veh_with_highest_value].append(request.customer_id)
@@ -71,6 +70,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list):
             elif network.check_constraint(request, veh_with_highest_value):
                 index = network.routes[veh_with_highest_value].index(1000) 
                 network.routes[veh_with_highest_value].insert(index, request.customer_id)
+                print("network.routes[veh_with_highest_value] else 3 after insert: ", network.routes[veh_with_highest_value])
             cost_sum += network.update_cost(veh_with_highest_value)
             
         T = T + 1

@@ -35,7 +35,7 @@ class Network:
         self.drone_capacity = drone_capacity
         self.drone_endurance = drone_endurance
         
-        self.requests = requests
+        self.requests = {}
         
         self.trucks = {}
         self.routes = {}
@@ -104,6 +104,8 @@ class Network:
     
         # Extract the route of truck from encode
         index_1000 = self.routes[vehicle_id].index(1000)
+        print("self.routes[vehicle_id]: ", self.routes[vehicle_id])
+        # đoạn này phải check thêm là nếu không có number after 1000
         number_after_1000 = self.routes[vehicle_id][index_1000 + 1]
         truck_route = [num for num in self.routes[vehicle_id][:index_1000] if num != number_after_1000]
 
