@@ -6,6 +6,7 @@ class Truck:
         self.velocity = velocity
         self.position = {}
         self.remain_capacity = {}
+        
         for t in range(1000):
             self.remain_capacity[t] = self.capacity
             # print("self.remain_capaciy[t]: ", self.remain_capacity[t])
