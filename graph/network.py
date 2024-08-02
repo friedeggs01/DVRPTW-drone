@@ -35,7 +35,7 @@ class Network:
         self.drone_capacity = drone_capacity
         self.drone_endurance = drone_endurance
         
-        self.requests = requests
+        self.requests = {}
         
         self.trucks = {}
         self.routes = {}
