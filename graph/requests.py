@@ -1,5 +1,6 @@
 class Request:
-    def __init__(self, customer_id, x, y, customer_demand, arrival_time, service_time, tw_start=None, tw_end=None, earliness=None, lateness=None, drone_serve = False):
+    def __init__(self, customer_id, x, y, customer_demand, arrival_time, service_time, tw_start=None, 
+                 tw_end=None, earliness=None, lateness=None, drone_serve = False):
         self.x = x
         self.y = y
         self.customer_id = customer_id
