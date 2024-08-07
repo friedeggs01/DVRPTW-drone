@@ -93,3 +93,10 @@ def check_vehiclecapacity(network, pos, request, vehicle_id):
         else:
             return False
     return True  
+
+def get_request_list(request_list, T, duration):
+    request_list = []
+    for request in request_list:
+        if request.arrival >= T and request.arrival < T + duration:
+            request_list.append(request)
+    return request_list
