@@ -24,30 +24,32 @@ def decode_route(routes):
 
 
 def cal_finished_service_time(network: Network, request_list, vehicle_id, route):
-    service_time = np.zeros(len(request_list) + 1)
+    service_time = np.zeros(len(request_list) + 1) # thời gian hoàn thành phục vụ
     planning_route, truck_route, drone_route = decode_route(route)
 
     for pos in range(0, len(planning_route)):
-        if pos == 0:
+        if pos == 0: # vị trí đầu tiên truck đi từ depot
             service_time[planning_route[pos]] = cal_distance(None, request_list[planning_route[pos]])/network.trucks[vehicle_id].velocity\
                                                 + request_list[planning_route[pos]].service_time
             continue
         if planning_route[pos] in drone_route:
             if planning_route[pos-1] in drone_route:
                 service_time[planning_route[pos]] = service_time[planning_route[pos-1]]\
-                    + cal_distance(request_list[planning_route[pos -1]], request_list[planning_route[pos]])/network.drones[vehicle_id].velocity \
-                    + network.drones[vehicle_id].time_launch + request_list[planning_route[pos]].service_time
+                    + cal_distance(request_list[planning_route[pos -1]], request_list[planning_route[pos]])/network.drones[vehicle_id].velocity\
+                    + request_list[planning_route[pos]].service_time
             elif planning_route[pos-1] in truck_route:
-                service_time[planning_route[pos]] = service_time[planning_route[pos-1]] + cal_distance(request_list[planning_route[pos -1]], request_list[planning_route[pos]])/network.drones[vehicle_id].velocity \
-                    + network.drones[vehicle_id].time_launch + request_list[planning_route[pos]].service_time
+                service_time[planning_route[pos]] = service_time[planning_route[pos-1]]\
+                    + cal_distance(request_list[planning_route[pos -1]], request_list[planning_route[pos]])/network.drones[vehicle_id].velocity\
+                    + network.drones[vehicle_id].time_launch + request_list[planning_route[pos]].service_time # từ drone xuất phát từ truck thì mới cần + launch_time
         elif planning_route[pos] in truck_route:
             pre_pos = pos - 1
             while planning_route[pre_pos] in drone_route:
                 pre_pos = pre_pos - 1
             if pre_pos == pos - 1:
-                service_time[planning_route[pos]] = service_time[planning_route[pos-1]] + cal_distance(request_list[planning_route[pos -1]], request_list[planning_route[pos]])/network.trucks[vehicle_id].velocity \
+                service_time[planning_route[pos]] = service_time[planning_route[pos-1]]\
+                    + cal_distance(request_list[planning_route[pos -1]], request_list[planning_route[pos]])/network.trucks[vehicle_id].velocity \
                     + request_list[planning_route[pos]].service_time
-            else:
+            else: # hoặc là truck phải chờ drone, hoặc drone xong và phải chờ truck
                 service_time[planning_route[pos]] = max(service_time[planning_route[pos - 1]] + cal_distance(request_list[planning_route[pos -1]], request_list[planning_route[pos]])/network.drones[vehicle_id].velocity + network.drones[vehicle_id].time_receive,\
                                                          service_time[planning_route[pre_pos]] + cal_distance(request_list[planning_route[pre_pos]], request_list[planning_route[pos]])/network.trucks[vehicle_id].velocity)\
                                                          + request_list[planning_route[pos]].service_time
@@ -68,9 +70,6 @@ def check_timewindow_route(network, request_list, vehicle_id, start_check, route
             return False
     return True
     
-    
-
-
 def get_request_run(request_list, reject, T):
     #print("get request run")
     request_processing = []
