@@ -2,6 +2,9 @@ from .baseline import Node
 
 import numpy as np
 
+###################### CHOOSING TREE #####################
+
+# Static terminal
 # Arrival time of request
 class ATR(Node):
     def __init__(self):
@@ -28,16 +31,16 @@ class SDR(Node):
     def GetOutput(self, X):
         return X.r.tw_start
 
-# Due date of request
-class DDR(Node):
+# Time window end of request
+class TWE(Node):
     def __init__(self):
-         super(DDR,self).__init__()
+         super(TWE,self).__init__()
     def __repr__(self):
-        return "DDR"
+        return "TWE"
     def _GetHumanExpressionSpecificNode(self, args):
-        return "DDR"
+        return "TWE"
     def getSymbol(self):
-        return "DDR"
+        return "TWE"
     def GetOutput(self, X):
         return X.r.tw_end
     
@@ -80,7 +83,73 @@ class CDS(Node):
     def GetOutput(self, X):
         return X.r.lateness
 
-# truck remaining capacity
+# truck total capacity
+class TTC(Node):
+    def __init__(self):
+         super(TTC,self).__init__()
+    def __repr__(self):
+        return "TTC"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "TTC"
+    def getSymbol(self):
+        return "TTC"
+    def GetOutput(self, X):
+        return X.truck.capacity
+
+# drone total capacity
+class DTC(Node):
+    def __init__(self):
+         super(DTC,self).__init__()
+    def __repr__(self):
+        return "DTC"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "DTC"
+    def getSymbol(self):
+        return "DTC"
+    def GetOutput(self, X):
+        return X.drone.capacity
+
+# drone total battery
+class DTB(Node):
+    def __init__(self):
+         super(DTB,self).__init__()
+    def __repr__(self):
+        return "DTB"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "DTB"
+    def getSymbol(self):
+        return "DTB"
+    def GetOutput(self, X):
+        return X.drone.battery
+    
+# Dynamic terminal
+# waiting time of request
+class WTR(Node):
+    def __init__(self):
+         super(WTR,self).__init__()
+    def __repr__(self):
+        return "WTR"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "WTR"
+    def getSymbol(self):
+        return "WTR"
+    def GetOutput(self, X):
+        return X.T - X.r.arrival
+
+# due date of request 
+class DDR(Node):
+    def __init__(self):
+         super(DDR,self).__init__()
+    def __repr__(self):
+        return "DDR"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "DDR"
+    def getSymbol(self):
+        return "DDR"
+    def GetOutput(self, X):
+        return X.r.tw_end - X.T
+    
+#  truck remain capacity
 class TRC(Node):
     def __init__(self):
          super(TRC,self).__init__()
@@ -91,9 +160,9 @@ class TRC(Node):
     def getSymbol(self):
         return "TRC"
     def GetOutput(self, X):
-        return X.truck.capacity
-
-# drone remaining capacity
+        return X.truck.remain_capacity
+    
+# drone remain capacity at T
 class DRC(Node):
     def __init__(self):
          super(DRC,self).__init__()
@@ -104,12 +173,12 @@ class DRC(Node):
     def getSymbol(self):
         return "DRC"
     def GetOutput(self, X):
-        return X.drone.capacity
-
-# drone remaining battery
+        return X.drone.remain_capacity[X.T]
+    
+# drone remain battery at T
 class DRB(Node):
     def __init__(self):
-         super(DRB,self).__init__()
+         super(DRC,self).__init__()
     def __repr__(self):
         return "DRB"
     def _GetHumanExpressionSpecificNode(self, args):
@@ -117,13 +186,9 @@ class DRB(Node):
     def getSymbol(self):
         return "DRB"
     def GetOutput(self, X):
-        return X.drone.battery
-
-# waiting time of drone to meet truck again
-
-# customer demand (maybe not because we will solve stochastic demand problem)
-
-
+        return X.drone.remain_capacity[X.T]
+    
+    
  ##############################################################   
 class Rand(Node):
     def __init__(self):
