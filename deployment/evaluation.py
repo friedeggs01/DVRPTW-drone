@@ -53,11 +53,19 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list, 
                 gp_value = choosing_gp(indi, request, T, network_copy, network_copy.trucks[vehicle_id], network_copy.drones[vehicle_id])
                 vehicle_priority.append((vehicle_id, gp_value))
             vehicle_priority.sort(key=lambda x: x[1], reverse=True)
+            accepted = False
             for vehicle_id, _ in vehicle_priority:
                 # Insert function
-            
-            
+                new_route, pos = insert_request(network_copy, vehicle_id, request, T)
+                if new_route == False:
+                    continue
+                network_copy.routes[vehicle_id] = new_route
+                accepted = True
+                break
+            if accepted == False:
+                request_queue.append(request)        
         T = T + duration
+        
     return cost_sum
 
 
@@ -85,9 +93,40 @@ def cal_carbon_emission(network: Network, routes):
     return carbon_emission
 
 def insert_request(network: Network, vehicle_id, request, T):
-
-
-
-            
-
-
+    planning_route, truck_route, drone_route = decode_route(network.routes[vehicle_id])
+    start_insert = 0
+    for pos in range(len(planning_route)):
+        if network.pre_service_time[pos] >= T:
+            start_insert = pos
+            break
+    # insert to truck
+    priority_insert_truck = []
+    for pos in range(start_insert, len(planning_route) + 1):
+        new_route = check_insert(network, vehicle_id, request, pos, 1, T)
+        if new_route == False:
+            continue
+        else:
+            carbon_emission = cal_carbon_emission(network, new_route)
+            priority_insert_truck.append((pos, carbon_emission))
+    
+    # insert to drone
+    priority_insert_drone = []
+    for pos in range(start_insert, len(planning_route) + 1):
+        new_route = check_insert(network, vehicle_id, request, pos, 0, T)
+        if new_route == False:
+            continue
+        else:
+            carbon_emission = cal_carbon_emission(network, new_route)
+            priority_insert_drone.append((pos, carbon_emission))
+    if len(priority_insert_truck) == 0 and len(priority_insert_drone) == 0:
+        return False, False
+    if len(priority_insert_truck) == 0:
+        priority_insert_drone.sort(key=lambda x: x[1])
+        pos = priority_insert_drone[0][0]
+        new_route = check_insert(network, vehicle_id, request, pos, 0, T)
+        return new_route, pos
+    if len(priority_insert_drone) == 0:
+        priority_insert_truck.sort(key=lambda x: x[1])
+        pos = priority_insert_truck[0][0]
+        new_route = check_insert(network, vehicle_id, request, pos, 1, T)
+        return new_route, pos
