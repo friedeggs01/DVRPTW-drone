@@ -16,3 +16,5 @@ class Drone:
         self.time_launch = time_launch
         self.time_receive = time_receive
         self.velocity = velocity
+        self.remain_capacity = {}
+        self.remain_battery = {}
