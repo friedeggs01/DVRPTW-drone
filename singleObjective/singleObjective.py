@@ -56,7 +56,7 @@ def trainSingleObjective(processing_number, indi_list, network, request_list,
                 pop_size, max_gen, min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
                 crossover_operator_list, mutation_operator_list, calFitness, choosing_tree, alpha):
-    print("Số request:",len(request_list))
+    print("Số request:", len(request_list))
     pop = SingleObjectivePopulation(pop_size, functions, terminal_decision, terminal_choosing, terminal_routing, 
                         min_height, max_height, initialization_max_height, 
                         num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
