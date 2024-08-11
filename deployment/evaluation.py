@@ -66,7 +66,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list, 
                 request_queue.append(request)        
         T = T + duration
         
-    return cost_sum
+    return carbon_sum
 
 
 def cal_carbon_emission(network: Network, routes):

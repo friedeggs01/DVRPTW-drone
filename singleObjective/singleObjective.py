@@ -55,7 +55,7 @@ def trainSingleObjective(processing_number, indi_list, network, request_list,
                 functions, terminal_decision,terminal_choosing, terminal_routing, 
                 pop_size, max_gen, min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, choosing_tree, alpha):
+                crossover_operator_list, mutation_operator_list, calFitness, choosing_tree, alpha, duration = 10, end_system_time=1000):
     print("Số request:", len(request_list))
     pop = SingleObjectivePopulation(pop_size, functions, terminal_decision, terminal_choosing, terminal_routing, 
                         min_height, max_height, initialization_max_height, 
@@ -65,14 +65,9 @@ def trainSingleObjective(processing_number, indi_list, network, request_list,
     pop.pre_indi_gen(indi_list)
     pool = multiprocessing.Pool(processes=processing_number)
     arg = []
-    # for indi in pop.indivs:
-    #     arg.append((indi, network, request_list))
-    # print("------arg: ", arg)
-    # result = pool.starmap(calFitness, arg)
-    # for indi, value in zip(pop.indivs, result):
-    #     indi.objectives = value
+
     for indi in pop.indivs:
-        indi.objectives = calFitness(indi, network, request_list)
+        indi.objectives = calFitness(indi, network, request_list, duration, end_system_time)
     print("Khởi tạo xong ")  
     
     best = pop.take_best(alpha)
@@ -101,7 +96,7 @@ def run_SingleObjective(data_path, processing_num, indi_list, num_train,
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
                 crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha):
     reader = Read_data()
-    network, request_list = reader.read(data_path)
+    request_list = reader.read_request(data_path)
      
     request_train = []
     request_test = []
@@ -110,8 +105,10 @@ def run_SingleObjective(data_path, processing_num, indi_list, num_train,
             request_train.append(request)
         else: 
             request_test.append(request)
+            
+    network = Network()
 
-    best = trainSingleObjective(processing_num, indi_list,  network, request_train,
+    best = trainSingleObjective(processing_num, indi_list, network, request_train,
                     functions, terminal_decision,terminal_choosing,  terminal_routing, 
                     pop_size, max_gen,  min_height, max_height, initialization_max_height,  
                     num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
