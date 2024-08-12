@@ -7,31 +7,31 @@ from gp.population.individual import Individual
 
 # Randomly individual initialization
 def individual_init(min_height, curr_max_depth,
-                    functions, decision_terminals, choosing_terminals, routing_terminals, decision_tree=None, choosing_tree=None, routing_tree=None):
+                    functions, decision_terminals, ordering_terminals, choosing_terminals, decision_tree=None, ordering_tree=None, choosing_tree=None):
         decision_tree = deepcopy(decision_tree)
         if decision_tree is None:
             decision_tree = GenerateRandomTree(functions, decision_terminals, curr_max_depth, 
                                                 curr_height=0, 
                                                 method='grow' if np.random.random() < .5 else 'full', 
                                                 min_height= min_height )
+        ordering_tree = deepcopy(ordering_tree)
+        if ordering_tree is None:
+            ordering_tree = GenerateRandomTree(functions, ordering_terminals, curr_max_depth, 
+                                                curr_height=0, 
+                                                method='grow' if np.random.random() < .5 else 'full', 
+                                                min_height= min_height )
+        inv = Individual(decision_tree, choosing_tree, ordering_tree)
         choosing_tree = deepcopy(choosing_tree)
         if choosing_tree is None:
             choosing_tree = GenerateRandomTree(functions,choosing_terminals, curr_max_depth, 
                                             curr_height=0, 
                                             method='grow' if np.random.random() < .5 else 'full', 
                                             min_height= min_height )
-        routing_tree = deepcopy(routing_tree)
-        if routing_tree is None:
-            routing_tree = GenerateRandomTree(functions,routing_terminals, curr_max_depth, 
-                                                curr_height=0, 
-                                                method='grow' if np.random.random() < .5 else 'full', 
-                                                min_height= min_height )
-        inv = Individual(decision_tree, choosing_tree, routing_tree)
         return inv
 
 # Randomly population initialization 
 def random_population_init(pop_size, min_height, initialization_max_tree_height,
-                           functions, decision_terminals, choosing_terminals, routing_terminals, decision_tree=None, choosing_tree=None, routing_tree=None):
+                           functions, decision_terminals, ordering_terminals, choosing_terminals, decision_tree=None, ordering_tree=None, choosing_tree=None):
     indi_list = []
     curr_max_depth = min_height
     init_depth_interval = pop_size / (initialization_max_tree_height - min_height + 1)
@@ -41,7 +41,7 @@ def random_population_init(pop_size, min_height, initialization_max_tree_height,
             next_depth_interval += init_depth_interval
             curr_max_depth += 1
         inv = individual_init(min_height, curr_max_depth,
-                        functions, decision_terminals, choosing_terminals, routing_terminals, decision_tree, choosing_tree, routing_tree)
+                        functions, decision_terminals, ordering_terminals, choosing_terminals, decision_tree, ordering_tree, choosing_tree)
         indi_list.append(inv)
     return indi_list
 
