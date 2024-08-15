@@ -178,7 +178,7 @@ class DRC(Node):
 # drone remain battery at T
 class DRB(Node):
     def __init__(self):
-         super(DRC,self).__init__()
+         super(DRB,self).__init__()
     def __repr__(self):
         return "DRB"
     def _GetHumanExpressionSpecificNode(self, args):

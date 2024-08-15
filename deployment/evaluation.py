@@ -8,7 +8,7 @@ from .deploy_request import *
 from graph.network import Network
 import math
 
-def calFitness_three_policies(indi: Individual, network: Network, request_list, duration, end_system_time):
+def calFitness_three_policies(indi: Individual, network: Network, request_list, duration = 10, end_system_time = 1000):
     # storing processing history
     network_copy = deepcopy(network)
     request_list_copy = deepcopy(request_list)
@@ -37,6 +37,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list, 
                 reject = reject + 1
                 continue
             accepted_request.append(request)
+        print("accepted requests: ", accepted_request)
         
         # Order of accepted requests
         ordered_requests = []
@@ -44,6 +45,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list, 
             value_ordering_gp = ordering_gp(indi, request, T, network_copy, network_copy.requests)
             ordered_requests.append((request, value_ordering_gp))
         ordered_requests.sort(key=lambda x: x[1], reverse=True)
+        print("ordered_requests: ", ordered_requests)
 
         request_queue = []
         # Processing each request
@@ -65,8 +67,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list, 
             if accepted == False:
                 request_queue.append(request)        
         T = T + duration
-        
-    return cost_sum
+    return carbon_sum, len(accepted_request)
 
 
 def cal_carbon_emission(network: Network, routes):

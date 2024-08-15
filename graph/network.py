@@ -22,7 +22,7 @@ class Link:
         self.dist = dist
     
 class Network:
-    def __init__(self, customers, links, num_vehicle, truck_capacity, drone_capacity, drone_endurance, request_list):
+    def __init__(self, customers = None, links = None, request_list= None, num_vehicle = 10, truck_capacity = 1300, drone_capacity = 10, drone_endurance = 30):
         self.make_span = 0
         self.carbon_emission = {}
         self.WAER = 1.2603 # kg/mile
