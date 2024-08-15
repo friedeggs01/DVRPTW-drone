@@ -23,22 +23,26 @@ class SingleObjectivePopulation(Population):
         offspring = []
         for i in range(self.pop_size):
             indi1, indi2 = random.choices(self.indivs, k=2)
+            print("indi1: ", indi1)
+            print("indi1.decision_tree: ", indi1.decision_tree.GetHumanExpression())
+            print("indi1.ordering_tree: ", indi1.ordering_tree.GetHumanExpression())
+            print("indi1.choosing_tree: ", indi1.choosing_tree.GetHumanExpression())
             if np.random.random() < self.crossover_rate:
                 for crossover_operator in crossover_operator_list:
-                    children1, children2 = crossover_operator(indi1, indi2, self.min_height, self.max_height, indi1.decision_tree)
+                    children1, children2 = crossover_operator(indi1, indi2, self.min_height, self.max_height, indi1.decision_tree, indi1.ordering_tree, indi1.choosing_tree)
                     offspring.extend([children1, children2])
             if np.random.random() < self.mutation_rate:
                 for mutation_operator in mutation_operator_list:
                     mutant1 = mutation_operator(indi1, self.functions, 
                                                 self.decision_terminals, self.ordering_terminals, self.choosing_terminals, 
-                                                self.min_height, self.max_height, self.decision_tree)
+                                                self.min_height, self.max_height, indi1.decision_tree)
                     mutant2 = mutation_operator(indi2, self.functions, 
                                                 self.decision_terminals, self.ordering_terminals, self.choosing_terminals, 
-                                                self.min_height, self.max_height, self.decision_tree)
+                                                self.min_height, self.max_height, indi1.decision_tree)
                     offspring.extend([mutant1, mutant2])
             if np.random.random() < 1 - self.crossover_rate - self.mutation_rate:
-                indi = individual_init(self.min_height, self.max_height, self.decision_tree, self.functions,
-                                       self.decision_terminals, self.ordering_terminals, self.choosing_terminals)
+                indi = individual_init(self.min_height, self.max_height,  self.functions,
+                                    self.decision_terminals, self.ordering_terminals, self.choosing_terminals,  indi1.decision_tree)
                 offspring.append(indi)
         return offspring
     
@@ -82,13 +86,13 @@ def trainSingleObjective(processing_number, indi_list, network, request_list,
             arg.append((indi, network, request_list))
         result = pool.starmap(calFitness, arg)
         for indi, value in zip(offspring, result):
-            indi.objectives[0],indi.objectives[1],  indi.reject, indi.cost = value
+            indi.objectives[0], indi.objectives[1] = value
   
         pop.indivs.extend(offspring)
         pop.natural_selection(alpha)
         best = pop.take_best(alpha)   
         print("The he ", i+1)
-        print(best.objectives, best.reject, best.cost)      
+        print(best.objectives)      
     pool.close()
     return best
 
@@ -116,8 +120,8 @@ def run_SingleObjective(data_path, processing_num, indi_list, num_train,
                     num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
                 crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha)
 
-    normal_reject, normal_cost, reject, cost = calFitness(best, network, request_test)
-    print(normal_reject, normal_cost, reject, cost)
+    carbon_sum, accepted_request = calFitness(best, network, request_test)
+    print("best individual objectives: ", carbon_sum, accepted_request)
     
     pool = multiprocessing.Pool(processes=processing_num)
     return  True

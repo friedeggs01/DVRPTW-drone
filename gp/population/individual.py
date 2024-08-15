@@ -4,7 +4,6 @@ class Individual:
         self.decision_tree = decision_tree
         self.ordering_tree = ordering_tree
         self.choosing_tree = choosing_tree
-        self.objectives = None
-        
+        self.objectives = [0, 0]
 
 

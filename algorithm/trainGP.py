@@ -34,8 +34,8 @@ class GPPopulation(Population):
                 children2 = mutation_operator(indi2, self.functions, self.decision_terminals, self.choosing_terminals, self.min_depth, self.max_depth)
                 offspring.extend([children1, children2])
         if np.random.random() < 1 - self.crossover_rate - self.mutation_rate:
-            indi = individual_init(self.min_depth, self.max_depth, self.decision_tree, self.functions
-                                   self.decision_terminals, self.choosing_terminals)
+            indi = individual_init(self.min_depth, self.max_depth,  self.functions,
+                                   self.decision_terminals, self.ordering_terminals, self.choosing_terminals,  self.decision_tree)
             offspring.append(indi)
         return offspring
     def natural_selection(self, alpha):

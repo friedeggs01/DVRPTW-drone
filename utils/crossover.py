@@ -32,6 +32,7 @@ def __crossover_branch_individual_swap(individual: Individual, donor: Individual
     return Individual(o1, o2, o3)
 
 def crossover_branch_individual_swap(individual1, individual2, min_height, max_height, decision_tree, ordering_tree, choosing_tree):
+    print("ordering tree: ", ordering_tree)
     child1 = __crossover_branch_individual_swap(individual1, individual2, min_height, max_height, decision_tree, ordering_tree, choosing_tree)
     child2 = __crossover_branch_individual_swap(individual2, individual1, min_height, max_height, decision_tree, ordering_tree, choosing_tree)
     return child1, child2

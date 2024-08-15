@@ -16,17 +16,19 @@ def individual_init(min_height, curr_max_depth,
                                                 min_height= min_height )
         ordering_tree = deepcopy(ordering_tree)
         if ordering_tree is None:
+            print("functions init: ", functions)
             ordering_tree = GenerateRandomTree(functions, ordering_terminals, curr_max_depth, 
                                                 curr_height=0, 
                                                 method='grow' if np.random.random() < .5 else 'full', 
                                                 min_height= min_height )
-        inv = Individual(decision_tree, choosing_tree, ordering_tree)
         choosing_tree = deepcopy(choosing_tree)
         if choosing_tree is None:
             choosing_tree = GenerateRandomTree(functions,choosing_terminals, curr_max_depth, 
                                             curr_height=0, 
                                             method='grow' if np.random.random() < .5 else 'full', 
                                             min_height= min_height )
+        inv = Individual(decision_tree, choosing_tree, ordering_tree)
+        print("Individual: ", inv)
         return inv
 
 # Randomly population initialization 
