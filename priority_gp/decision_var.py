@@ -20,3 +20,10 @@ class Routing: # định tuyến lại đường cho cặp phương tiện truck
         self.T = T
         self.truck = truck
         self.drone = drone
+
+class Ordering: # định tuyến lại đường cho cặp phương tiện truck - drone
+    def __init__(self, r, T, truck, drone):
+        self.r = r
+        self.T = T
+        self.truck = truck
+        self.drone = drone

@@ -1,15 +1,15 @@
 
 class Truck:
-    def __init__(self, id, capacity, velocity = 35):
+    def __init__(self, id, capacity, velocity = 50):
         self.id = id
         self.capacity = capacity
         self.velocity = velocity
-        self.used_capacity = None
+        self.used_capacity = 0
     def update_used_capacity(self, request):
         self.used_capacity += request.customer_demand
     
 class Drone:
-    def __init__(self, id, capacity, battery = 30, time_launch = 1, time_receive = 1, velocity = 50):
+    def __init__(self, id, capacity, battery = 30, time_launch = 1, time_receive = 1, velocity = 80):
         self.id = id
         self.capacity = capacity
         self.battery = battery
