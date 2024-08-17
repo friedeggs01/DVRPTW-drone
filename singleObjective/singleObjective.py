@@ -61,19 +61,19 @@ def trainSingleObjective(processing_number, indi_list, network, request_list,
                 functions, terminal_decision,terminal_ordering, terminal_choosing, 
                 pop_size, max_gen, min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, ordering_tree, alpha, duration = 10, end_system_time=1000):
+                crossover_operator_list, mutation_operator_list, calFitness, ordering_tree, 
+                alpha, duration, start_system_time, end_system_time):
     print("Số request:", len(request_list))
-    pop = SingleObjectivePopulation(pop_size, functions, terminal_decision, terminal_ordering, terminal_choosing, 
-                        min_height, max_height, initialization_max_height, 
-                        num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                        )
+    pop = SingleObjectivePopulation(pop_size, functions, terminal_decision, terminal_ordering, 
+                                    terminal_choosing, min_height, max_height, initialization_max_height, 
+                                    num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate)
 
     pop.pre_indi_gen(indi_list)
     pool = multiprocessing.Pool(processes=processing_number)
     arg = []
 
     for indi in pop.indivs:
-        indi.objectives = calFitness(indi, network, request_list, duration, end_system_time)
+        indi.objectives[0], indi.objectives[1] = calFitness(indi, network, request_list, duration, start_system_time, end_system_time)
     print("Khởi tạo xong ")  
     print("pop: ", pop)
     best = pop.take_best(alpha)
@@ -96,14 +96,16 @@ def trainSingleObjective(processing_number, indi_list, network, request_list,
     pool.close()
     return best
 
-def run_SingleObjective(data_path, processing_num, indi_list, num_train,  
+def run_SingleObjective(data_path, processing_num, 
+                num_vehicle, truck_capacity, drone_capacity, drone_endurance,
+                indi_list, num_train,  
                 functions, terminal_decision, terminal_ordering, terminal_choosing, 
                 pop_size, max_gen,  min_height, max_height, initialization_max_height,  
-                num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha):
+                num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
+                crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha,
+                duration, start_train, end_train, end_test):
     reader = Read_data()
-    request_list = reader.read_request(data_path)
-     
+    request_list = reader.read_request(data_path) 
     request_train = []
     request_test = []
     for request in request_list:
@@ -112,16 +114,13 @@ def run_SingleObjective(data_path, processing_num, indi_list, num_train,
         else: 
             request_test.append(request)
             
-    network = Network()
-
+    network = Network(request_train, num_vehicle, truck_capacity, drone_capacity, drone_endurance)
     best = trainSingleObjective(processing_num, indi_list, network, request_train,
                     functions, terminal_decision,terminal_ordering,  terminal_choosing, 
                     pop_size, max_gen,  min_height, max_height, initialization_max_height,  
                     num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha)
+                    crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha,
+                    duration, start_train, end_train)
 
     carbon_sum, accepted_request = calFitness(best, network, request_test)
-    print("best individual objectives: ", carbon_sum, accepted_request)
-    
-    pool = multiprocessing.Pool(processes=processing_num)
     return  True

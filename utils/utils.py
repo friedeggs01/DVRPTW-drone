@@ -26,16 +26,16 @@ def decode_route(routes):
 
 
 def cal_finished_service_time(network: Network, request_list, vehicle_id, new_route, pre_service_time, T):
-    service_time = np.zeros(len(request_list) + 1) # thời gian hoàn thành phục vụ
+    if pre_service_time is None:
+        service_time = np.zeros(len(request_list) + 1) # thời gian hoàn thành phục vụ
+    else:
+        service_time = pre_service_time
     planning_route, truck_route, drone_route = decode_route(new_route)
-
     start_check_point = 0
     for pos in range(1, len(planning_route)):
         if pre_service_time[planning_route[pos]] > T:
             break
         start_check_point = pos
-    for pos in range(0, start_check_point):
-        service_time[planning_route[pos]] = pre_service_time[planning_route[pos]]
     for pos in range(start_check_point, len(planning_route)):
         if pos == 0: # vị trí đầu tiên truck đi từ depot
             service_time[planning_route[pos]] = cal_distance(None, request_list[planning_route[pos]])/network.trucks[vehicle_id].velocity\
@@ -66,6 +66,10 @@ def cal_finished_service_time(network: Network, request_list, vehicle_id, new_ro
 
 
 def check_each_request_timewindow(request, finish_service_time):
+    # print("Thong tin check time window")
+    # print("finish_service_time: ", finish_service_time)
+    # print("request.tw_start: ", request.tw_start)
+    # print("request.tw_end: ", request.tw_end)
     if (finish_service_time <= request.tw_end) and (finish_service_time - request.service_time >= request.tw_start):
         return True
     else:
@@ -74,6 +78,9 @@ def check_each_request_timewindow(request, finish_service_time):
 def check_timewindow_route(network, request_list, vehicle_id, start_check, new_route, T):
     service_time = cal_finished_service_time(network, request_list, vehicle_id, new_route, network.pre_service_time, T)
     planning_route, truck_route, drone_route = decode_route(new_route)
+    # print("check timewindow route")
+    # print("planning_route: ", planning_route)
+    # print("service_time: ", service_time)
     for pos in range(start_check, len(planning_route)):
         if check_each_request_timewindow(request_list[pos], service_time[pos]) == False:
             return False
@@ -92,9 +99,9 @@ def get_request_run(request_list, reject, T):
                 request_reject.append(request)      
     return request_processing, request_reject, reject 
 
-def get_request_list(request_list, T, duration):
+def get_request_list(arg_request_list, T, duration):
     request_list = []
-    for request in request_list:
+    for request in arg_request_list:
         if (request.arrival >= T - duration) and (request.arrival <= T):
             request_list.append(request)
     return request_list
