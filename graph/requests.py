@@ -8,8 +8,8 @@ class Request:
         self.service_time = service_time
         self.tw_start = tw_start
         self.tw_end = tw_end
-        self.earliness = earliness
-        self.lateness = lateness
+        self.earliness = tw_start - 30
+        self.lateness = tw_end + 30
         self.drone_serve = drone_serve # True if drone can serve this customer, else False
         self.serving_start = None
         self.serving_end = None

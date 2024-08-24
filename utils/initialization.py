@@ -16,18 +16,18 @@ def individual_init(min_height, curr_max_depth,
                                                 min_height= min_height )
         ordering_tree = deepcopy(ordering_tree)
         if ordering_tree is None:
-            print("functions init: ", functions)
             ordering_tree = GenerateRandomTree(functions, ordering_terminals, curr_max_depth, 
                                                 curr_height=0, 
                                                 method='grow' if np.random.random() < .5 else 'full', 
                                                 min_height= min_height )
         choosing_tree = deepcopy(choosing_tree)
         if choosing_tree is None:
-            choosing_tree = GenerateRandomTree(functions,choosing_terminals, curr_max_depth, 
+            choosing_tree = GenerateRandomTree(functions, choosing_terminals, curr_max_depth, 
                                             curr_height=0, 
                                             method='grow' if np.random.random() < .5 else 'full', 
                                             min_height= min_height )
-        inv = Individual(decision_tree, choosing_tree, ordering_tree)
+            print("Inside initialize choosing_tree: ", choosing_tree.GetHumanExpression())
+        inv = Individual(decision_tree, ordering_tree, choosing_tree)
         print("Individual: ", inv)
         return inv
 
@@ -44,6 +44,8 @@ def random_population_init(pop_size, min_height, initialization_max_tree_height,
             curr_max_depth += 1
         inv = individual_init(min_height, curr_max_depth,
                         functions, decision_terminals, ordering_terminals, choosing_terminals, decision_tree, ordering_tree, choosing_tree)
+        print("Initialize orering tree: ", inv.choosing_tree.GetHumanExpression())      
+        print("Initialize choosing tree: ", inv.choosing_tree.GetHumanExpression())
         indi_list.append(inv)
     return indi_list
 

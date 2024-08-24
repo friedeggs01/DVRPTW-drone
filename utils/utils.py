@@ -139,6 +139,7 @@ def check_insert(network, vehicle_id, request, pos, truck_asign, T):
             sum_demand_drone_segement = 0
             for i in range(pre_pos + 1, after_pos):
                 sum_demand_drone_segement += network.requests[new_route[i]].customer_demand
+            # network.drones[vehicle_id].rema
             if sum_demand_drone_segement > network.drones[vehicle_id].capacity:
                 return False
         else:

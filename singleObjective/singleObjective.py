@@ -23,10 +23,10 @@ class SingleObjectivePopulation(Population):
         offspring = []
         for i in range(self.pop_size):
             indi1, indi2 = random.choices(self.indivs, k=2)
-            print("indi1: ", indi1)
-            print("indi1.decision_tree: ", indi1.decision_tree.GetHumanExpression())
-            print("indi1.ordering_tree: ", indi1.ordering_tree.GetHumanExpression())
-            print("indi1.choosing_tree: ", indi1.choosing_tree.GetHumanExpression())
+            # print("indi1: ", indi1)
+            # print("indi1.decision_tree: ", indi1.decision_tree.GetHumanExpression())
+            # print("indi1.ordering_tree: ", indi1.ordering_tree.GetHumanExpression())
+            # print("indi1.choosing_tree: ", indi1.choosing_tree.GetHumanExpression())
             if np.random.random() < self.crossover_rate:
                 for crossover_operator in crossover_operator_list:
                     children1, children2 = crossover_operator(indi1, indi2, self.min_height, self.max_height, indi1.decision_tree, indi1.ordering_tree, indi1.choosing_tree)

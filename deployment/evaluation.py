@@ -28,7 +28,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list,
                 num_reject += 1
                 continue
             processing_request_list.append(request)
-        
+        print("request_queue: ", request_queue)
         # Calculate value of GP for each request
         accepted_request = []
         for request in processing_request_list:
@@ -38,26 +38,31 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list,
                 reject = reject + 1
                 continue
             accepted_request.append(request)
-        
+        print("accepted_request: ", accepted_request)
         # Order of accepted requests
         ordered_requests = []
         for request in accepted_request:
             value_ordering_gp = ordering_gp(indi, request, T, network_copy)
             ordered_requests.append((request, value_ordering_gp))
+        # print("non-ordered_requests: ", ordered_requests)
         ordered_requests.sort(key=lambda x: x[1], reverse=True)
-
+        # print("ordered_requests: ", ordered_requests)
         request_queue = []
         # Processing each request
         for request, value_ordering_gp in ordered_requests:
             vehicle_priority = []
             for vehicle_id in range(network_copy.num_vehicle):
                 gp_value = choosing_gp(indi, request, T, network_copy, network_copy.trucks[vehicle_id], network_copy.drones[vehicle_id])
+                # print("gp_value: ", gp_value)
                 vehicle_priority.append((vehicle_id, gp_value))
+            # print("non-vehicle_priority: ", vehicle_priority)
             vehicle_priority.sort(key=lambda x: x[1], reverse=True)
+            # print("vehicle_priority: ", vehicle_priority)
             accepted = False
             for vehicle_id, _ in vehicle_priority:
                 # Insert function
                 new_route, pos = insert_request(network_copy, vehicle_id, request, T)
+                print("new_route after insert: ", new_route)
                 if new_route == False:
                     continue
                 network_copy.routes[vehicle_id] = new_route
