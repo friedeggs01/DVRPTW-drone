@@ -47,7 +47,7 @@ end_test = 1000
 function = [AddNode(), SubNode(), MulNode(), DivNode(), MaxNode(), MinNode()]
 terminal_decision = [ATR()]
 terminal_ordering = [ATR(), SDR()]
-terminal_choosing = [SDR(), DDR(), DCC(), CRS(), CDS(), TRC(), DRC(), DRB(), Const()] 
+terminal_choosing = [SDR(), DDR(), DCC(), CRS(), CDS(), TRC(), Const()] 
 
 # khởi tạo cây như nào
 decision_tree = ATR()

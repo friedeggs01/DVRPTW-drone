@@ -50,6 +50,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list,
         request_queue = []
         # Processing each request
         for request, value_ordering_gp in ordered_requests:
+            print("request: ", request.request_id)
             vehicle_priority = []
             for vehicle_id in range(network_copy.num_vehicle):
                 gp_value = choosing_gp(indi, request, T, network_copy, network_copy.trucks[vehicle_id], network_copy.drones[vehicle_id])

@@ -16,7 +16,7 @@ class ATR(Node):
     def getSymbol(self):
         return "ATR"
     def GetOutput(self, X):
-        print("ATR: ", X.r.arrival)
+        # print("ATR: ", X.r.arrival)
         return X.r.arrival
 
 # Start date of request
@@ -30,7 +30,7 @@ class SDR(Node):
     def getSymbol(self):
         return "SDR"
     def GetOutput(self, X):
-        print("SDR: ", X.r.tw_start)
+        # print("SDR: ", X.r.tw_start)
         return X.r.tw_start
 
 # Time window end of request
@@ -44,7 +44,7 @@ class TWE(Node):
     def getSymbol(self):
         return "TWE"
     def GetOutput(self, X):
-        print("TWE: ", X.r.tw_end)
+        # print("TWE: ", X.r.tw_end)
         return X.r.tw_end
     
 # distance to the customer being considered
@@ -58,7 +58,7 @@ class DCC(Node):
     def getSymbol(self):
         return "DCC"
     def GetOutput(self, X):
-        print("DCC: ", X.r.tw_end)
+        # print("DCC: ", X.r.tw_end)
         return X.r.tw_end
     
 # customer can ready to served
@@ -72,7 +72,7 @@ class CRS(Node):
     def getSymbol(self):
         return "CRS"
     def GetOutput(self, X):
-        print("CRS: ", X.r.earliness)
+        # print("CRS: ", X.r.earliness)
         return X.r.earliness
 
 # the amount of time till customer due date
@@ -86,7 +86,7 @@ class CDS(Node):
     def getSymbol(self):
         return "CDS"
     def GetOutput(self, X):
-        print("CDS: ", X.r.lateness)
+        # print("CDS: ", X.r.lateness)
         return X.r.lateness
 
 # truck total capacity
@@ -100,7 +100,7 @@ class TTC(Node):
     def getSymbol(self):
         return "TTC"
     def GetOutput(self, X):
-        print("TTC: ", X.truck.capacity)
+        # print("TTC: ", X.truck.capacity)
         return X.truck.capacity
 
 # drone total capacity
@@ -114,7 +114,7 @@ class DTC(Node):
     def getSymbol(self):
         return "DTC"
     def GetOutput(self, X):
-        print("DTC: ", X.drone.capacity)
+        # print("DTC: ", X.drone.capacity)
         return X.drone.capacity
 
 # drone total battery
@@ -128,7 +128,7 @@ class DTB(Node):
     def getSymbol(self):
         return "DTB"
     def GetOutput(self, X):
-        print("DTB: ", X.drone.battery)
+        # print("DTB: ", X.drone.battery)
         return X.drone.battery
     
 # Dynamic terminal
@@ -143,7 +143,7 @@ class WTR(Node):
     def getSymbol(self):
         return "WTR"
     def GetOutput(self, X):
-        print("WTR: ")
+        # print("WTR: ")
         return X.T - X.r.arrival
 
 # due date of request 
