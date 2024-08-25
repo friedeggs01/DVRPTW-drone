@@ -13,7 +13,7 @@ def decision_gp(T):
     return result
 
 def choosing_gp(indi: Individual, request: Request, T, network, truck, drone):
-    print("X: ", indi.choosing_tree.GetHumanExpression())
+    # print("X: ", indi.choosing_tree.GetHumanExpression())
     X = Choosing(request, T, truck, drone)
     result = indi.choosing_tree.GetOutput(X)
     return result
