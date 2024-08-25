@@ -2,7 +2,7 @@ from copy import deepcopy
 import numpy as np
 from graph.network import Network
 from graph.requests import Request
-
+import time
 
 
 def cal_distance(r1: Request, r2: Request):
@@ -26,16 +26,16 @@ def decode_route(routes):
 
 
 def cal_finished_service_time(network: Network, request_list, vehicle_id, new_route, pre_service_time, T):
-    service_time = np.zeros(len(request_list) + 1) # thời gian hoàn thành phục vụ
+    if pre_service_time is None:
+        service_time = np.zeros(len(request_list) + 1) # thời gian hoàn thành phục vụ
+    else:
+        service_time = pre_service_time
     planning_route, truck_route, drone_route = decode_route(new_route)
-
     start_check_point = 0
     for pos in range(1, len(planning_route)):
         if pre_service_time[planning_route[pos]] > T:
             break
         start_check_point = pos
-    for pos in range(0, start_check_point):
-        service_time[planning_route[pos]] = pre_service_time[planning_route[pos]]
     for pos in range(start_check_point, len(planning_route)):
         if pos == 0: # vị trí đầu tiên truck đi từ depot
             service_time[planning_route[pos]] = cal_distance(None, request_list[planning_route[pos]])/network.trucks[vehicle_id].velocity\
@@ -66,14 +66,31 @@ def cal_finished_service_time(network: Network, request_list, vehicle_id, new_ro
 
 
 def check_each_request_timewindow(request, finish_service_time):
+    # print("Thong tin check time window")
+    # print("finish_service_time: ", finish_service_time)
+    # print("request.tw_start: ", request.tw_start)
+    # print("request.tw_end: ", request.tw_end)
+
     if (finish_service_time <= request.tw_end) and (finish_service_time - request.service_time >= request.tw_start):
         return True
     else:
+        print("Thong tin check time window")
+        print("finish_service_time: ", finish_service_time)
+        print("request.tw_start: ", request.tw_start)
+        print("request.tw_end: ", request.tw_end)
+        print("request.service_time: ", request.service_time)
+        # time.sleep(2)
         return False
 
 def check_timewindow_route(network, request_list, vehicle_id, start_check, new_route, T):
     service_time = cal_finished_service_time(network, request_list, vehicle_id, new_route, network.pre_service_time, T)
+    print("service_time: ", service_time)
+    # time.sleep(2)
     planning_route, truck_route, drone_route = decode_route(new_route)
+    # print("check timewindow route")
+    # print("planning_route: ", planning_route)
+    # print("service_time: ", service_time)
+    print("start_check and len planning_route: ", start_check, len(planning_route))
     for pos in range(start_check, len(planning_route)):
         if check_each_request_timewindow(request_list[pos], service_time[pos]) == False:
             return False
@@ -92,15 +109,21 @@ def get_request_run(request_list, reject, T):
                 request_reject.append(request)      
     return request_processing, request_reject, reject 
 
-def get_request_list(request_list, T, duration):
+def get_request_list(arg_request_list, T, duration):
     request_list = []
-    for request in request_list:
+    for request in arg_request_list:
         if (request.arrival >= T - duration) and (request.arrival <= T):
             request_list.append(request)
     return request_list
 
 def check_insert(network, vehicle_id, request, pos, truck_asign, T):
     planning_route, truck_route, drone_route = decode_route(network.routes[vehicle_id])
+
+    if len(planning_route) == 0:
+        finished_time = cal_distance(None, request) / network.trucks[vehicle_id].velocity + request.service_time
+        if check_each_request_timewindow(request, finished_time) == False:
+            return False
+
     if truck_asign == 1:
         # check capacity of truck
         if network.trucks[vehicle_id].used_capacity + request.customer_demand > network.trucks[vehicle_id].capacity:
@@ -109,6 +132,7 @@ def check_insert(network, vehicle_id, request, pos, truck_asign, T):
         new_route = deepcopy(network.routes[vehicle_id])
         new_route.insert(pos, request.request_id)
         if check_timewindow_route(network, network.requests, vehicle_id, pos, new_route, T) == False:
+            # print("check timewindow false")
             return False
         return new_route
     else:
@@ -132,6 +156,7 @@ def check_insert(network, vehicle_id, request, pos, truck_asign, T):
             sum_demand_drone_segement = 0
             for i in range(pre_pos + 1, after_pos):
                 sum_demand_drone_segement += network.requests[new_route[i]].customer_demand
+            # network.drones[vehicle_id].rema
             if sum_demand_drone_segement > network.drones[vehicle_id].capacity:
                 return False
         else:

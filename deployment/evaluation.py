@@ -7,13 +7,14 @@ from utils.utils import *
 from .deploy_request import *
 from graph.network import Network
 import math
+import time
 
-def calFitness_three_policies(indi: Individual, network: Network, request_list, duration, end_system_time):
+def calFitness_three_policies(indi: Individual, network: Network, request_list, 
+                              duration, start_system_time, end_system_time):
     # storing processing history
     network_copy = deepcopy(network)
     request_list_copy = deepcopy(request_list)
-    sum_request = len(request_list_copy)
-    T = 0
+    T = start_system_time
     num_reject = 0 # number of reject request
     carbon_sum = 0 # sum of cost of all request that excuted
     request_queue = []
@@ -27,7 +28,7 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list, 
                 num_reject += 1
                 continue
             processing_request_list.append(request)
-        
+        print("request_queue: ", request_queue)
         # Calculate value of GP for each request
         accepted_request = []
         for request in processing_request_list:
@@ -37,36 +38,50 @@ def calFitness_three_policies(indi: Individual, network: Network, request_list, 
                 reject = reject + 1
                 continue
             accepted_request.append(request)
-        
+        print("accepted_request: ", accepted_request)
         # Order of accepted requests
         ordered_requests = []
         for request in accepted_request:
-            value_ordering_gp = ordering_gp(indi, request, T, network_copy, network_copy.requests)
+            value_ordering_gp = ordering_gp(indi, request, T, network_copy)
             ordered_requests.append((request, value_ordering_gp))
+        # print("non-ordered_requests: ", ordered_requests)
         ordered_requests.sort(key=lambda x: x[1], reverse=True)
-
+        # print("ordered_requests: ", ordered_requests)
         request_queue = []
         # Processing each request
         for request, value_ordering_gp in ordered_requests:
+            print("request: ", request.request_id)
             vehicle_priority = []
-            for vehicle_id in range(1, network_copy.num_vehicle + 1):
+            for vehicle_id in range(network_copy.num_vehicle):
                 gp_value = choosing_gp(indi, request, T, network_copy, network_copy.trucks[vehicle_id], network_copy.drones[vehicle_id])
+                # print("gp_value: ", gp_value)
                 vehicle_priority.append((vehicle_id, gp_value))
+            # print("non-vehicle_priority: ", vehicle_priority)
             vehicle_priority.sort(key=lambda x: x[1], reverse=True)
+            # print("vehicle_priority: ", vehicle_priority)
             accepted = False
             for vehicle_id, _ in vehicle_priority:
                 # Insert function
                 new_route, pos = insert_request(network_copy, vehicle_id, request, T)
+                print("new_route after insert: ", new_route)
                 if new_route == False:
                     continue
                 network_copy.routes[vehicle_id] = new_route
                 accepted = True
+                service_time = cal_finished_service_time(network_copy, request_list, vehicle_id, new_route, network_copy.pre_service_time, T)
+                network_copy.update_pre_service_time(service_time)
                 break
             if accepted == False:
                 request_queue.append(request)        
         T = T + duration
-        
-    return cost_sum
+    
+    for vehicle_id in range(network_copy.num_vehicle):
+        carbon_sum += cal_carbon_emission(network_copy, network_copy.routes[vehicle_id])
+        print(network_copy.routes[vehicle_id])
+    time.sleep(5)
+    print("carbon_sum: ", carbon_sum)
+    print("num_reject: ", num_reject)
+    return carbon_sum, num_reject
 
 
 def cal_carbon_emission(network: Network, routes):
@@ -94,9 +109,10 @@ def cal_carbon_emission(network: Network, routes):
 
 def insert_request(network: Network, vehicle_id, request, T):
     planning_route, truck_route, drone_route = decode_route(network.routes[vehicle_id])
+    # print("planning_route: ", planning_route)
     start_insert = 0
     for pos in range(len(planning_route)):
-        if network.pre_service_time[pos] >= T:
+        if network.pre_service_time[planning_route[pos]] >= T:
             start_insert = pos
             break
     # insert to truck
@@ -118,6 +134,9 @@ def insert_request(network: Network, vehicle_id, request, T):
         else:
             carbon_emission = cal_carbon_emission(network, new_route)
             priority_insert_drone.append((pos, carbon_emission))
+    # print("priority_insert_truck: ", priority_insert_truck)
+    # print("priority_insert_drone: ", priority_insert_drone)
+    # time.sleep(5)
     if len(priority_insert_truck) == 0 and len(priority_insert_drone) == 0:
         return False, False
     if len(priority_insert_truck) == 0:

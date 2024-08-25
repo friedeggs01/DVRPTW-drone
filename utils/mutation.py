@@ -4,8 +4,8 @@ from gp.population.individual import Individual
 from utils.utils import *
 
 def mutation_individual_branch_replace(individual: Individual, functions, 
-                                       terminal_decision, terminal_choosing, terminal_routing, 
-                                       min_height, max_height, decision_tree, choosing_tree, routing_tree):
+                                       terminal_decision, terminal_ordering, terminal_choosing, 
+                                       min_height, max_height, decision_tree):
     o1 = deepcopy(decision_tree)
     if o1 is None:
     # decision tree mutation
@@ -22,6 +22,10 @@ def mutation_individual_branch_replace(individual: Individual, functions,
     if min_height > height2 or height2 > max_height:
         o2 = deepcopy(individual.ordering_tree)
     # choosing tree mutation
+    print("individual.choosing_tree: ", individual.choosing_tree)
+    print("terminal_choosing: ", terminal_choosing)
+    print("min_height: ", min_height)
+    print("max_height: ", max_height)
     o3 = mutation_tree_branch_replace(individual.choosing_tree, functions, terminal_choosing,
                     min_height, max_height)
     height3 = o3.GetHeight()
