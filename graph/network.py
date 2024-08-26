@@ -57,6 +57,7 @@ class Network:
         return False
     
     def update_pre_service_time(self, service_time):
+        # print("Update_pre_service_time: ", service_time)
         self.pre_service_time = service_time
         
  
