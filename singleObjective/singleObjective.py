@@ -18,15 +18,17 @@ class SingleObjectivePopulation(Population):
                  num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
                  )
 
-   
-    def gen_offspring(self, crossover_operator_list, mutation_operator_list):
+   # Em sửa lại hàm gen_offspring khi tham số truyền vào có 3 biến decision_tree, ordering_tree, choosing_tree
+   # Sửa trong 2 file crossover và mutation 
+   # Để nếu tree = None thì sẽ tạo ra cây mới nếu không sẽ không học cây đó
+   # Hiện tại a đang để học 3 cây
+   # A sửa đổi và bổ sung các terminal mới, thay đổi class Decision, Choosing, Ordering
+
+
+    def gen_offspring(self, crossover_operator_list, mutation_operator_list, decision_tree, ordering_tree, choosing_tree):
         offspring = []
         for i in range(self.pop_size):
             indi1, indi2 = random.choices(self.indivs, k=2)
-            # print("indi1: ", indi1)
-            # print("indi1.decision_tree: ", indi1.decision_tree.GetHumanExpression())
-            # print("indi1.ordering_tree: ", indi1.ordering_tree.GetHumanExpression())
-            # print("indi1.choosing_tree: ", indi1.choosing_tree.GetHumanExpression())
             if np.random.random() < self.crossover_rate:
                 for crossover_operator in crossover_operator_list:
                     children1, children2 = crossover_operator(indi1, indi2, self.min_height, self.max_height, indi1.decision_tree, indi1.ordering_tree, indi1.choosing_tree)
@@ -46,14 +48,9 @@ class SingleObjectivePopulation(Population):
                 offspring.append(indi)
         return offspring
     
-    def natural_selection(self, alpha):
-        self.indivs.sort(key=lambda x: x.objectives[0]*alpha + x.objectives[1]*(1-alpha))
+    def natural_selection(self):
+        self.indivs.sort(key=lambda x: x.fitness)
         self.indivs = self.indivs[:self.pop_size]
-    
-    def take_best(self, alpha):
-        print("self.indivs[0]: ", self.indivs[0])
-        print("First individual's objectives: ", self.indivs[0].objectives[0])
-        self.indivs.sort(key=lambda x: x.objectives[0]*alpha + x.objectives[1]*(1-alpha))
         return self.indivs[0]
 
 
@@ -61,66 +58,71 @@ def trainSingleObjective(processing_number, indi_list, network, request_list,
                 functions, terminal_decision,terminal_ordering, terminal_choosing, 
                 pop_size, max_gen, min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, ordering_tree, 
-                alpha, duration, start_system_time, end_system_time):
-    print("Số request:", len(request_list))
-    pop = SingleObjectivePopulation(pop_size, functions, terminal_decision, terminal_ordering, 
-                                    terminal_choosing, min_height, max_height, initialization_max_height, 
+                crossover_operator_list, mutation_operator_list, calFitness,
+                alpha, duration, start_system_time, end_system_time, 
+                decision_tree, ordering_tree, choosing_tree, carbon_upper, reject_upper):
+    pop = SingleObjectivePopulation(pop_size, functions, terminal_decision, terminal_ordering, terminal_choosing, 
+                                    min_height, max_height, initialization_max_height, 
                                     num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate)
 
     pop.pre_indi_gen(indi_list)
     pool = multiprocessing.Pool(processes=processing_number)
     arg = []
 
+    # for indi in pop.indivs:
+    #     indi.objectives[0], indi.objectives[1] = calFitness(indi, network, request_list, duration, start_system_time, end_system_time)
+
     for indi in pop.indivs:
-        indi.objectives[0], indi.objectives[1] = calFitness(indi, network, request_list, duration, start_system_time, end_system_time)
-    print("Khởi tạo xong ")  
-    print("pop: ", pop)
-    best = pop.take_best(alpha)
-    print("The he 0:")
-    print(best.objectives)    
+        arg.append((indi, network, request_list, duration, start_system_time, end_system_time))
+    result = pool.starmap(calFitness, arg)
+    for indi, value in zip(pop.indivs, result):
+        indi.objectives[0], indi.objectives[1] = value
+        indi.cal_fitness_indi(alpha, carbon_upper, reject_upper)
+    
+    best_indi = pop.natural_selection()
+    print("The he 0:", best_indi.objectives) 
+
     for i in range(max_gen):
-        offspring = pop.gen_offspring(crossover_operator_list, mutation_operator_list)
+        offspring = pop.gen_offspring(crossover_operator_list, mutation_operator_list, 
+                                      decision_tree, ordering_tree, choosing_tree)
+        
         arg = []
         for indi in offspring:
-            arg.append((indi, network, request_list))
+            arg.append((indi, network, request_list, duration, start_system_time, end_system_time))
         result = pool.starmap(calFitness, arg)
         for indi, value in zip(offspring, result):
             indi.objectives[0], indi.objectives[1] = value
+            indi.cal_fitness_indi(alpha, carbon_upper, reject_upper)
   
         pop.indivs.extend(offspring)
-        pop.natural_selection(alpha)
-        best = pop.take_best(alpha)   
-        print("The he ", i+1)
-        print(best.objectives)      
+        pop.natural_selection()
+        best = pop.take_best()   
+        print("The he " + str(i+1) + ":", best.objectives)    
     pool.close()
     return best
 
 def run_SingleObjective(data_path, processing_num, 
                 num_vehicle, truck_capacity, drone_capacity, drone_endurance,
-                indi_list, num_train,  
+                indi_list,  
                 functions, terminal_decision, terminal_ordering, terminal_choosing, 
                 pop_size, max_gen,  min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha,
-                duration, start_train, end_train, end_test):
+                crossover_operator_list, mutation_operator_list, calFitness, 
+                decision_tree, ordering_tree, choosing_tree, 
+                alpha, duration, start_train, end_train, end_test):
     reader = Read_data()
     request_list = reader.read_request(data_path) 
-    request_train = []
-    request_test = []
-    for request in request_list:
-        if request.arrival <= num_train:
-            request_train.append(request)
-        else: 
-            request_test.append(request)
             
-    network = Network(request_train, num_vehicle, truck_capacity, drone_capacity, drone_endurance)
-    best = trainSingleObjective(processing_num, indi_list, network, request_train,
-                    functions, terminal_decision,terminal_ordering,  terminal_choosing, 
-                    pop_size, max_gen,  min_height, max_height, initialization_max_height,  
-                    num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
-                    crossover_operator_list, mutation_operator_list, calFitness, decision_tree, alpha,
-                    duration, start_train, end_train)
+    network = Network(request_list, num_vehicle, truck_capacity, drone_capacity, drone_endurance)
+    carbon_upper = 10000
+    reject_upper = 100
+    best = trainSingleObjective(processing_num, indi_list, network, request_list,
+                functions, terminal_decision,terminal_ordering, terminal_choosing, 
+                pop_size, max_gen, min_height, max_height, initialization_max_height,  
+                num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
+                crossover_operator_list, mutation_operator_list, calFitness,
+                alpha, duration, start_train, end_train, 
+                decision_tree, ordering_tree, choosing_tree, carbon_upper, reject_upper)
 
     carbon_sum, accepted_request = calFitness(best, network, request_test)
     return  True
