@@ -116,7 +116,9 @@ def get_request_run(request_list, reject, T):
 def get_request_list(arg_request_list, T, duration):
     request_list = []
     for request in arg_request_list:
-        if (request.arrival >= T - duration) and (request.arrival < T):
+        if request.served == 1:
+            continue
+        if (request.push_time >= T - duration) and (request.push_time < T):
             request_list.append(request)
     return request_list
 
@@ -152,6 +154,7 @@ def check_insert(network, vehicle_id, request, pos, truck_asign, T):
         new_route = deepcopy(network.routes[vehicle_id])
         new_route.insert(pos, request.request_id)
         new_route.append(request.request_id)
+        # print("insert request: ", new_route)
         if (new_route[pos - 1] in drone_route) or(new_route[pos + 1] in drone_route):
             pre_pos = pos - 1
             while new_route[pre_pos] in drone_route:

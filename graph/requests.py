@@ -14,3 +14,5 @@ class Request:
         self.serving_start = None
         self.serving_end = None
         self.request_id = request_id
+        self.push_time = arrival_time
+        self.served = 0

@@ -5,7 +5,8 @@ from utils.utils import *
 
 def mutation_individual_branch_replace(individual: Individual, functions, 
                                        terminal_decision, terminal_ordering, terminal_choosing, 
-                                       min_height, max_height, decision_tree):
+                                       min_height, max_height,
+                                       decision_tree, ordering_tree, choosing_tree):
     o1 = deepcopy(decision_tree)
     if o1 is None:
     # decision tree mutation
@@ -16,21 +17,21 @@ def mutation_individual_branch_replace(individual: Individual, functions,
             o1 = deepcopy(individual.decision_tree)
     
     # ordering tree mutation
-    o2 = mutation_tree_branch_replace(individual.ordering_tree, functions, terminal_ordering,
-                    min_height, max_height)
-    height2 = o2.GetHeight()
-    if min_height > height2 or height2 > max_height:
-        o2 = deepcopy(individual.ordering_tree)
+    o2 = deepcopy(ordering_tree)
+    if o2 is None:
+        o2 = mutation_tree_branch_replace(individual.ordering_tree, functions, terminal_ordering,
+                        min_height, max_height)
+        height2 = o2.GetHeight()
+        if min_height > height2 or height2 > max_height:
+            o2 = deepcopy(individual.ordering_tree)
     # choosing tree mutation
-    print("individual.choosing_tree: ", individual.choosing_tree)
-    print("terminal_choosing: ", terminal_choosing)
-    print("min_height: ", min_height)
-    print("max_height: ", max_height)
-    o3 = mutation_tree_branch_replace(individual.choosing_tree, functions, terminal_choosing,
-                    min_height, max_height)
-    height3 = o3.GetHeight()
-    if min_height > height3 or height3 > max_height:
-        o3 = deepcopy(individual.choosing_tree)
+    o3 = deepcopy(choosing_tree)
+    if o3 is None:
+        o3 = mutation_tree_branch_replace(individual.choosing_tree, functions, terminal_choosing,
+                        min_height, max_height)
+        height3 = o3.GetHeight()
+        if min_height > height3 or height3 > max_height:
+            o3 = deepcopy(individual.choosing_tree)
     # both trees mutation
     return Individual(o1, o2, o3)
 
