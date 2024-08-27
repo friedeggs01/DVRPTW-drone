@@ -7,7 +7,8 @@ from gp.population.individual import Individual
 
 # Randomly individual initialization
 def individual_init(min_height, curr_max_depth,
-                    functions, decision_terminals, ordering_terminals, choosing_terminals, decision_tree=None, ordering_tree=None, choosing_tree=None):
+                    functions, decision_terminals, ordering_terminals, choosing_terminals, 
+                    decision_tree=None, ordering_tree=None, choosing_tree=None):
         decision_tree = deepcopy(decision_tree)
         if decision_tree is None:
             decision_tree = GenerateRandomTree(functions, decision_terminals, curr_max_depth, 
