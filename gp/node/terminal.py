@@ -57,7 +57,7 @@ class TWE(Node):
     def GetOutput(self, X):
         return X.r.tw_end
 
-# Waiting time of request
+# Waiting time to ready of customer
 class WTR(Node):
     def __init__(self):
          super(WTR,self).__init__()
@@ -98,7 +98,7 @@ class DEM(Node):
     def GetOutput(self, X):
         return X.r.customer_demand
 
-# Waited time of request
+# Waiting time of request
 class PN(Node):
     def __init__(self):
          super(PN,self).__init__()
