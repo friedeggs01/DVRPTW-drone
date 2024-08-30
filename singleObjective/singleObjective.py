@@ -4,6 +4,7 @@ from utils.utils import *
 from gp.population.population import *
 import multiprocessing     
 import random
+import os
 from utils.initialization import individual_init
 
 
@@ -55,7 +56,7 @@ class SingleObjectivePopulation(Population):
         return self.indivs[0]
 
 
-def trainSingleObjective(processing_number, indi_list, network, request_list,
+def trainSingleObjective(data_path, processing_number, indi_list, network, request_list,
                 functions, terminal_decision,terminal_ordering, terminal_choosing, 
                 pop_size, max_gen, min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
@@ -85,7 +86,14 @@ def trainSingleObjective(processing_number, indi_list, network, request_list,
     #     print(indi.objectives)
     
     best_indi = pop.natural_selection()
-    print("The he 0:", best_indi.objectives) 
+    print("Generation 0:", best_indi.objectives)
+    
+    # Save result
+    file_name = f'result\\{data_path}'
+    os.makedirs(os.path.dirname(file_name), exist_ok=True)
+    
+    with open(file_name, "a") as file:
+        file.write(f"Generation 0: {best_indi.objectives}\n")
 
     for i in range(max_gen):
         offspring = pop.gen_offspring(crossover_operator_list, mutation_operator_list, 
@@ -105,7 +113,14 @@ def trainSingleObjective(processing_number, indi_list, network, request_list,
         pop.indivs.extend(offspring)
         best = pop.natural_selection()
         # best = pop.take_best()   
-        print("The he " + str(i+1) + ":", best.objectives)    
+        print("The he " + str(i+1) + ":", best.objectives)  
+        
+        # Save result
+        file_name = f'result\\{data_path}'
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        
+        with open(file_name, "a") as file:
+            file.write(f"Generation {str(i+1)}: {best_indi.objectives}\n")  
     pool.close()
     return best
 
@@ -139,7 +154,7 @@ def run_SingleObjective(data_path, processing_num,
     # print("Reject upper: ", reject_upper)
     carbon_upper = 100000
     reject_upper = 1000
-    best = trainSingleObjective(processing_num, indi_list, network, request_list,
+    best = trainSingleObjective(data_path, processing_num, indi_list, network, request_list,
                 functions, terminal_decision,terminal_ordering, terminal_choosing, 
                 pop_size, max_gen, min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
