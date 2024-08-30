@@ -34,9 +34,9 @@ if __name__ == "__main__":
     from utils.initialization import *
 
     # Algorithm parameters
-    num_pro = 10
-    pop_size = 30
-    max_gen = 20
+    num_pro = 80
+    pop_size = 100
+    max_gen = 50
     min_height = 2
     max_height = 8
     initialization_max_height = 4
@@ -59,8 +59,8 @@ if __name__ == "__main__":
     alpha = 0.5
     duration = 10
     start_train = 0
-    end_train = 1000
-    end_test = 1000
+    end_train = 2000
+    end_test = end_train
 
     # Node of tree
     function = [AddNode(), SubNode(), MulNode(), DivNode(), MaxNode(), MinNode()]
