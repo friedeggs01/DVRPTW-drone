@@ -137,23 +137,23 @@ def run_SingleObjective(data_path, processing_num,
     request_list = reader.read_request(data_path)      
     network = Network(request_list, num_vehicle, truck_capacity, drone_capacity, drone_endurance)
 
-    # sum_max_dis = 0
-    # for i in range (len(request_list)):
-    #     max_each_request = 0
-    #     for j in range(len(request_list)):
-    #         if i != j:
-    #             max_each_request = max(max_each_request, cal_distance(request_list[i], request_list[j]))
-    #     sum_max_dis += max_each_request
-    # depo_max = 0
-    # for i in range(len(request_list)):
-    #     depo_max = max(depo_max, cal_distance(None, request_list[i]))
-    # sum_max_dis  = sum_max_dis + 2*depo_max*network.num_vehicle
-    # carbon_upper = sum_max_dis/network.trucks[0].velocity*network.WAER
-    # reject_upper = len(request_list)
-    # print("Carbon upper: ", carbon_upper)
-    # print("Reject upper: ", reject_upper)
-    carbon_upper = 100000
-    reject_upper = 1000
+    sum_max_dis = 0
+    for i in range (len(request_list)):
+        max_each_request = 0
+        for j in range(len(request_list)):
+            if i != j:
+                max_each_request = max(max_each_request, cal_distance(request_list[i], request_list[j]))
+        sum_max_dis += max_each_request
+    depo_max = 0
+    for i in range(len(request_list)):
+        depo_max = max(depo_max, cal_distance(None, request_list[i]))
+    sum_max_dis  = sum_max_dis + 2*depo_max*network.num_vehicle
+    carbon_upper = sum_max_dis*network.WAER
+    reject_upper = len(request_list)
+    print("Carbon upper: ", carbon_upper)
+    print("Reject upper: ", reject_upper)
+    # carbon_upper = 100000
+    # reject_upper = 1000
     best = trainSingleObjective(data_path, processing_num, indi_list, network, request_list,
                 functions, terminal_decision,terminal_ordering, terminal_choosing, 
                 pop_size, max_gen, min_height, max_height, initialization_max_height,  
