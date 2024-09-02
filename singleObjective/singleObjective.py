@@ -89,12 +89,12 @@ def trainSingleObjective(data_path, processing_number, indi_list, network, reque
     print("Generation 0:", best_indi.objectives)
     
     # Save result
-    file_name = f'result\\{data_path}'
-    os.makedirs(os.path.dirname(file_name), exist_ok=True)
+    # file_name = f'result\\{data_path}'
+    # os.makedirs(os.path.dirname(file_name), exist_ok=True)
     
-    with open(file_name, "a") as file:
-        file.write(f"Generation 0: {best_indi.objectives}\n")
-
+    # with open(file_name, "a") as file:
+    #     file.write(f"Generation 0: {best_indi.objectives}\n")
+    res_gen = [best_indi.objectives]
     for i in range(max_gen):
         offspring = pop.gen_offspring(crossover_operator_list, mutation_operator_list, 
                                       decision_tree, ordering_tree, choosing_tree)
@@ -116,13 +116,15 @@ def trainSingleObjective(data_path, processing_number, indi_list, network, reque
         print("The he " + str(i+1) + ":", best.objectives)  
         
         # Save result
-        file_name = f'result\\{data_path}'
-        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        # file_name = f'result\\{data_path}'
+        # os.makedirs(os.path.dirname(file_name), exist_ok=True)
         
-        with open(file_name, "a") as file:
-            file.write(f"Generation {str(i+1)}: {best_indi.objectives}\n")  
+        # with open(file_name, "a") as file:
+        #     file.write(f"Generation {str(i+1)}: {best_indi.objectives}\n") 
+        res_gen.append(best.objectives) 
+        print("res gen: ", res_gen)
     pool.close()
-    return best
+    return best, res_gen
 
 def run_SingleObjective(data_path, processing_num, 
                 num_vehicle, truck_capacity, drone_capacity, drone_endurance,
@@ -154,11 +156,11 @@ def run_SingleObjective(data_path, processing_num,
     print("Reject upper: ", reject_upper)
     # carbon_upper = 100000
     # reject_upper = 1000
-    best = trainSingleObjective(data_path, processing_num, indi_list, network, request_list,
+    best, res_gen = trainSingleObjective(data_path, processing_num, indi_list, network, request_list,
                 functions, terminal_decision,terminal_ordering, terminal_choosing, 
                 pop_size, max_gen, min_height, max_height, initialization_max_height,  
                 num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
                 crossover_operator_list, mutation_operator_list, calFitness,
                 alpha, duration, start_train, end_train, 
                 decision_tree, ordering_tree, choosing_tree, carbon_upper, reject_upper)
-    return  best.objectives
+    return  best.objectives, res_gen

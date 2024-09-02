@@ -1,4 +1,14 @@
 import os
+from gp.node.function import *
+from gp.node.terminal import *
+from gp.population.population import *
+from utils.function_operator import *
+from singleObjective.singleObjective import run_SingleObjective
+from deployment.evaluation import calFitness_three_policies
+from utils.crossover import *
+from utils.mutation import *
+import multiprocessing
+from utils.initialization import *
 
 # Function to collect file paths
 def collect_file_paths(folder_path):
@@ -21,20 +31,8 @@ if __name__ == "__main__":
         'data\\__pycache__\\read_data.cpython-311.pyc'
     ]]
 
-    # Import necessary modules
-    from gp.node.function import *
-    from gp.node.terminal import *
-    from gp.population.population import *
-    from utils.function_operator import *
-    from singleObjective.singleObjective import run_SingleObjective
-    from deployment.evaluation import calFitness_three_policies
-    from utils.crossover import *
-    from utils.mutation import *
-    import multiprocessing
-    from utils.initialization import *
-
     # Algorithm parameters
-    num_pro = 80
+    num_pro = 10
     pop_size = 100
     max_gen = 50
     min_height = 2
@@ -46,7 +44,8 @@ if __name__ == "__main__":
     pm = 0.1
 
     # Vehicle parameters
-    num_vehicle = 3
+    num_vehicle_100 = [3, 5, 10]
+    num_vehicle_1000 = [20, 50, 100]
     truck_capacity = 1300
     drone_capacity = 10
     drone_endurance = 30
@@ -71,20 +70,57 @@ if __name__ == "__main__":
     # Execute the main loop for each data file
     for data_path in list_file_path:
         print("data_path: ", data_path)
-        decision_tree = None
-        ordering_tree = None
-        choosing_tree = None
+        if '1000' in data_path:
+            for veh in num_vehicle_1000:
+                decision_tree = None
+                ordering_tree = None
+                choosing_tree = None
 
-        indi_list = random_population_init(pop_size, min_height, initialization_max_height,
-                            function, terminal_decision, terminal_ordering, terminal_choosing, 
-                            decision_tree, ordering_tree, choosing_tree)
+                indi_list = random_population_init(pop_size, min_height, initialization_max_height,
+                                    function, terminal_decision, terminal_ordering, terminal_choosing, 
+                                    decision_tree, ordering_tree, choosing_tree)
 
-        result = run_SingleObjective(data_path, num_pro, 
-                        num_vehicle, truck_capacity, drone_capacity, drone_endurance,
-                        indi_list,  
-                        function, terminal_decision, terminal_ordering, terminal_choosing, 
-                        pop_size, max_gen,  min_height, max_height, initialization_max_height,  
-                        num_of_tour_particips, tournament_prob, pc, pm,
-                        crossover_operator_list, mutation_operator_list, calFitness_three_policies, 
-                        decision_tree, ordering_tree, choosing_tree, 
-                        alpha, duration, start_train, end_train, end_test)
+                result, res_gen = run_SingleObjective(data_path, num_pro, 
+                                veh, truck_capacity, drone_capacity, drone_endurance,
+                                indi_list,  
+                                function, terminal_decision, terminal_ordering, terminal_choosing, 
+                                pop_size, max_gen,  min_height, max_height, initialization_max_height,  
+                                num_of_tour_particips, tournament_prob, pc, pm,
+                                crossover_operator_list, mutation_operator_list, calFitness_three_policies, 
+                                decision_tree, ordering_tree, choosing_tree, 
+                                alpha, duration, start_train, end_train, end_test)
+            
+                file_name = f'result\\{veh}\\{data_path}'
+                os.makedirs(os.path.dirname(file_name), exist_ok=True)
+                print("result file: ", file_name)
+                with open(file_name, "a") as file:
+                    for res in res_gen:
+                        res = ' '.join(map(str, res))
+                        file.write(res + '\n') 
+        else:
+            for veh in num_vehicle_100:
+                decision_tree = None
+                ordering_tree = None
+                choosing_tree = None
+
+                indi_list = random_population_init(pop_size, min_height, initialization_max_height,
+                                    function, terminal_decision, terminal_ordering, terminal_choosing, 
+                                    decision_tree, ordering_tree, choosing_tree)
+
+                result, res_gen = run_SingleObjective(data_path, num_pro, 
+                                veh, truck_capacity, drone_capacity, drone_endurance,
+                                indi_list,  
+                                function, terminal_decision, terminal_ordering, terminal_choosing, 
+                                pop_size, max_gen,  min_height, max_height, initialization_max_height,  
+                                num_of_tour_particips, tournament_prob, pc, pm,
+                                crossover_operator_list, mutation_operator_list, calFitness_three_policies, 
+                                decision_tree, ordering_tree, choosing_tree, 
+                                alpha, duration, start_train, end_train, end_test)
+            
+                file_name = f'result\\{veh}\\{data_path}'
+                os.makedirs(os.path.dirname(file_name), exist_ok=True)
+                print("result file: ", file_name)
+                with open(file_name, "a") as file:
+                    for res in res_gen:
+                        res = ' '.join(map(str, res))  
+                        file.write(res + '\n')  
