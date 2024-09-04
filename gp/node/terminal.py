@@ -234,6 +234,30 @@ class Rand(Node):
         return "Rand"
     def GetOutput(self, X):
         return np.random.rand()
+    
+class ZeroNode(Node):
+    def __init__(self):
+        super(ZeroNode, self).__init__()
+    def __repr__(self):
+        return "ZeroNode"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "ZeroNode"
+    def getSymbol(self):
+        return "ZeroNode"
+    def GetOutput(self, X):
+        return 0
+    
+class OneNode(Node):
+    def __init__(self):
+        super(OneNode, self).__init__()
+    def __repr__(self):
+        return "OneNode"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "OneNode"
+    def getSymbol(self):
+        return "OneNode"
+    def GetOutput(self, X):
+        return 1
       
 class Const(Node):
     def __init__(self):
@@ -254,3 +278,4 @@ class Const(Node):
         self.value = self.value + np.random.normal(0, 0.1)           
 
 ####################################################################
+
