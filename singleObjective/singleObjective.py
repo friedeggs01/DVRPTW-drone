@@ -162,7 +162,7 @@ def run_SingleObjective(data_path, processing_num,
                 crossover_operator_list, mutation_operator_list, calFitness,
                 alpha, duration, start_train, end_train, 
                 decision_tree, ordering_tree, choosing_tree, carbon_upper, reject_upper)
-    return  best.objectives, res_gen
+    return  best.objectives, res_gen, carbon_upper
 
 def trainHeuristic(data_path, processing_number, indi_list, network, request_list,
                 functions, terminal_decision,terminal_ordering, terminal_choosing, 

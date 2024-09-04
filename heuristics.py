@@ -99,7 +99,7 @@ data_store = "Heuristic_result.csv"
 if os.path.exists(data_store):
     os.remove(data_store)
 with open(data_store, 'w') as f:
-    f.write("data_path, num_vehicle, carbon_heu1, reject_heu1, carbon_heu2, reject_heu2, carbon_heu3, reject_heu3, carbon_heu4, reject_heu4, carbon_heu5, reject_heu5, carbon_heu6, reject_heu6\n")
+    f.write("data_path, num_vehicle, fheu1, fheu2, fheu3, fheu4, fheu5, fheu6, carbon_heu1, reject_heu1, carbon_heu2, reject_heu2, carbon_heu3, reject_heu3, carbon_heu4, reject_heu4, carbon_heu5, reject_heu5, carbon_heu6, reject_heu6\n")
 
 for data_path in list_file_path:
     print("data_path: ", data_path)
@@ -129,5 +129,12 @@ for data_path in list_file_path:
         obj1_heu5, obj2_heu5 = calFitness_three_policies(indi_heu5, network, request_list, duration, start_train, end_train)
         obj1_heu6, obj2_heu6 = calFitness_three_policies(indi_heu6, network, request_list, duration, start_train, end_train)
 
+        heu1 = ((obj1_heu1 / carbon_upper) + (obj2_heu1 / reject_upper)) / 2
+        heu2 = ((obj1_heu2 / carbon_upper) + (obj2_heu2 / reject_upper)) / 2
+        heu3 = ((obj1_heu3 / carbon_upper) + (obj2_heu3 / reject_upper)) / 2
+        heu4 = ((obj1_heu4 / carbon_upper) + (obj2_heu4 / reject_upper)) / 2
+        heu5 = ((obj1_heu5 / carbon_upper) + (obj2_heu5 / reject_upper)) / 2
+        heu6 = ((obj1_heu6 / carbon_upper) + (obj2_heu6 / reject_upper)) / 2
+      
         with open(data_store, 'a') as f:
-            f.write("{},{},{},{}, {},{}, {},{}, {},{}, {},{}, {},{}\n".format(data_path[-12:], num_vehicle, obj1_heu1, obj2_heu1, obj1_heu2, obj2_heu2, obj1_heu3, obj2_heu3, obj1_heu4, obj2_heu4, obj1_heu5, obj2_heu5, obj1_heu6, obj2_heu6))
+            f.write("{},{},  {},{},{},{},{},{},  {},{}, {},{}, {},{}, {},{}, {},{}, {},{}\n".format(data_path[-12:], num_vehicle, heu1, heu2, heu3, heu4, heu5, heu6, obj1_heu1, obj2_heu1, obj1_heu2, obj2_heu2, obj1_heu3, obj2_heu3, obj1_heu4, obj2_heu4, obj1_heu5, obj2_heu5, obj1_heu6, obj2_heu6))
