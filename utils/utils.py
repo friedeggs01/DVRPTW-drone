@@ -15,7 +15,7 @@ def cal_distance(r1: Request, r2: Request):
 
 def decode_route(routes):
     # Extract the route of truck from encode
-    index_1000 = routes.index(1000)
+    index_1000 = routes.index(-1)
     # đoạn này phải check thêm là nếu không có number after 1000
     planning_route = routes[:index_1000]
     drone_route = routes[index_1000 + 1:]
