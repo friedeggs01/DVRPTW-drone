@@ -8,5 +8,6 @@ class Individual:
 
     def cal_fitness_indi(self, alpha, carbon_upper, reject_upper):
         self.fitness = self.objectives[0]/carbon_upper*alpha + self.objectives[1]/reject_upper*(1-alpha)
+        
 
 

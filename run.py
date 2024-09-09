@@ -44,8 +44,8 @@ if __name__ == "__main__":
     pm = 0.1
 
     # Vehicle parameters
-    num_vehicle_100 = [3, 5, 10]
-    num_vehicle_1000 = [20, 50, 100]
+    num_vehicle_100 = 25
+    num_vehicle_1000 = 250
     truck_capacity = 1300
     drone_capacity = 10
     drone_endurance = 30
