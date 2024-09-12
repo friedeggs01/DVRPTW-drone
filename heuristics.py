@@ -76,7 +76,7 @@ choosing_heu6 = TRC()
 indi_heu6 = Individual(decision_heu6, ordering_heu6, choosing_heu6)
 
 
-num_vehicle_list = [3, 5, 10]
+num_vehicle_list = [25]
 truck_capacity = 1300
 drone_capacity = 10
 drone_endurance = 30
