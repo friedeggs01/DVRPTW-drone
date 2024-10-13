@@ -44,8 +44,8 @@ if __name__ == "__main__":
     pm = 0.1
 
     # Vehicle parameters
-    num_vehicle_100 = 25
-    num_vehicle_1000 = 250
+    num_vehicle_100 = [25]
+    num_vehicle_1000 = [250]
     truck_capacity = 1300
     drone_capacity = 10
     drone_endurance = 30
@@ -88,7 +88,7 @@ if __name__ == "__main__":
                                 num_of_tour_particips, tournament_prob, pc, pm,
                                 crossover_operator_list, mutation_operator_list, calFitness_three_policies, 
                                 decision_tree, ordering_tree, choosing_tree, 
-                                alpha, duration, start_train, end_train, end_test)
+                                alpha, duration, start_train, end_train, end_test, "partical", 0.1)
             
                 file_name = f'result\\{veh}\\{data_path}'
                 os.makedirs(os.path.dirname(file_name), exist_ok=True)
@@ -98,6 +98,7 @@ if __name__ == "__main__":
                         res = ' '.join(map(str, res))
                         file.write(res + '\n') 
         else:
+            continue
             for veh in num_vehicle_100:
                 decision_tree = None
                 ordering_tree = None

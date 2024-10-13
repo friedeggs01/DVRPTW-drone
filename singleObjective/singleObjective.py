@@ -127,31 +127,95 @@ def run_SingleObjective(data_path, processing_num,
                 num_of_tour_particips, tournament_prob, crossover_rate, mutation_rate,
                 crossover_operator_list, mutation_operator_list, calFitness, 
                 decision_tree, ordering_tree, choosing_tree, 
-                alpha, duration, start_train, end_train, end_test):
+                alpha, duration, start_train, end_train, end_test, flag = "full", train_rate = 0.1):
     reader = Read_data()
-    request_list = reader.read_request(data_path)      
+    request_list = reader.read_request(data_path)     
     network = Network(request_list, num_vehicle, truck_capacity, drone_capacity, drone_endurance)
+    request_list = sorted(request_list, key = lambda x: x.arrival)
 
-    sum_max_dis = 0
-    for i in range (len(request_list)):
+    if flag == "full":
+
+        sum_max_dis = 0
+        for i in range (len(request_list)):
+            max_each_request = 0
+            for j in range(len(request_list)):
+                if i != j:
+                    max_each_request = max(max_each_request, cal_distance(request_list[i], request_list[j]))
+            sum_max_dis += max_each_request
+        depo_max = 0
+        for i in range(len(request_list)):
+            depo_max = max(depo_max, cal_distance(None, request_list[i]))
+        sum_max_dis  = sum_max_dis + 2*depo_max*network.num_vehicle
+        carbon_upper = sum_max_dis*network.WAER
+        reject_upper = len(request_list)
+        print("Carbon upper: ", carbon_upper)
+        print("Reject upper: ", reject_upper)
+        best, res_gen = trainSingleObjective(data_path, processing_num, indi_list, network, request_list,
+                    functions, terminal_decision,terminal_ordering, terminal_choosing, 
+                    pop_size, max_gen, min_height, max_height, initialization_max_height,  
+                    num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
+                    crossover_operator_list, mutation_operator_list, calFitness,
+                    alpha, duration, start_train, end_train, 
+                    decision_tree, ordering_tree, choosing_tree, carbon_upper, reject_upper)
+
+        return  best.objectives, res_gen
+    
+    training_list = request_list[:int(len(request_list)*train_rate)]
+    testing_list = request_list[int(len(request_list)*train_rate):]
+
+    training_sum_max_dis = 0
+    for i in range (len(training_list)):
         max_each_request = 0
-        for j in range(len(request_list)):
+        for j in range(len(training_list)):
             if i != j:
-                max_each_request = max(max_each_request, cal_distance(request_list[i], request_list[j]))
-        sum_max_dis += max_each_request
+                max_each_request = max(max_each_request, cal_distance(training_list[i], training_list[j]))
+        training_sum_max_dis += max_each_request
     depo_max = 0
-    for i in range(len(request_list)):
-        depo_max = max(depo_max, cal_distance(None, request_list[i]))
-    sum_max_dis  = sum_max_dis + 2*depo_max*network.num_vehicle
-    carbon_upper = sum_max_dis*network.WAER
-    reject_upper = len(request_list)
-    print("Carbon upper: ", carbon_upper)
-    print("Reject upper: ", reject_upper)
-    best, res_gen = trainSingleObjective(data_path, processing_num, indi_list, network, request_list,
-                functions, terminal_decision,terminal_ordering, terminal_choosing, 
-                pop_size, max_gen, min_height, max_height, initialization_max_height,  
-                num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
-                crossover_operator_list, mutation_operator_list, calFitness,
-                alpha, duration, start_train, end_train, 
-                decision_tree, ordering_tree, choosing_tree, carbon_upper, reject_upper)
-    return  best.objectives, res_gen
+    for i in range(len(training_list)):
+        depo_max = max(depo_max, cal_distance(None, training_list[i]))
+    training_sum_max_dis  = training_sum_max_dis + 2*depo_max*network.num_vehicle
+    training_carbon_upper = training_sum_max_dis*network.WAER
+    training_reject_upper = len(training_list)
+    print("Training Carbon upper: ", training_carbon_upper)
+    print("Training Reject upper: ", training_reject_upper)
+    start_train = 0
+    end_train = max([x.tw_end for x in training_list])
+    train_best, train_res_gen = trainSingleObjective(data_path, processing_num, indi_list, network, training_list,
+                    functions, terminal_decision,terminal_ordering, terminal_choosing, 
+                    pop_size, max_gen, min_height, max_height, initialization_max_height,  
+                    num_of_tour_particips, tournament_prob,crossover_rate, mutation_rate,
+                    crossover_operator_list, mutation_operator_list, calFitness,
+                    alpha, duration, start_train, end_train, 
+                    decision_tree, ordering_tree, choosing_tree, training_carbon_upper, training_reject_upper)
+
+    #Testing
+    id = 0
+    for request in testing_list:
+        request.request_id = id
+        id += 1
+    testing_sum_max_dis = 0
+    for i in range (len(testing_list)):
+        max_each_request = 0
+        for j in range(len(testing_list)):
+            if i != j:
+                max_each_request = max(max_each_request, cal_distance(testing_list[i], testing_list[j]))
+        testing_sum_max_dis += max_each_request
+    depo_max = 0
+    for i in range(len(testing_list)):
+        depo_max = max(depo_max, cal_distance(None, testing_list[i]))
+    testing_sum_max_dis  = testing_sum_max_dis + 2*depo_max*network.num_vehicle
+    testing_carbon_upper = testing_sum_max_dis*network.WAER
+    testing_reject_upper = len(testing_list)
+    print("Testing Carbon upper: ", testing_carbon_upper)
+    print("Testing Reject upper: ", testing_reject_upper)
+    start_test = 0
+    end_test = max([x.tw_end for x in testing_list])
+
+    test_object = calFitness(train_best, network, testing_list, 
+                              duration, start_test, end_test)
+    print("Testing objective: ", test_object)
+    
+    return test_object, train_res_gen
+
+
+
