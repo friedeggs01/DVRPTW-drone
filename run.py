@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # Algorithm parameters
     num_pro = 10
     pop_size = 100
-    max_gen = 50
+    max_gen = 10
     min_height = 2
     max_height = 8
     initialization_max_height = 4
@@ -44,8 +44,8 @@ if __name__ == "__main__":
     pm = 0.1
 
     # Vehicle parameters
-    num_vehicle_100 = 25
-    num_vehicle_1000 = 250
+    num_vehicle_100 = [25]
+    num_vehicle_1000 = [250]
     truck_capacity = 1300
     drone_capacity = 10
     drone_endurance = 30

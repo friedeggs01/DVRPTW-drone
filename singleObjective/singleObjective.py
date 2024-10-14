@@ -48,6 +48,23 @@ class SingleObjectivePopulation(Population):
         self.indivs.sort(key=lambda x: x.fitness)
         self.indivs = self.indivs[:self.pop_size]
         return self.indivs[0]
+    from collections import Counter
+    def vote_selection(self):
+        # Step 1: Sort by fitness (ascending order)
+        self.indivs.sort(key=lambda x: x.fitness)
+        
+        # Step 2: Take the top 10 individuals
+        top_10 = self.indivs[:10]
+        
+        # Step 3: Count the appearance of each individual
+        indiv_counter = Counter(top_10)
+        
+        # Step 4: Find the individual(s) with the highest appearance rate
+        most_common_indivs = indiv_counter.most_common(1)  # Get the most frequent individual(s)
+        
+        # Return the individual with the highest appearance rate
+        return most_common_indivs[0][0]
+
 
 def trainSingleObjective(data_path, processing_number, indi_list, network, request_list,
                 functions, terminal_decision,terminal_ordering, terminal_choosing, 
@@ -114,7 +131,10 @@ def trainSingleObjective(data_path, processing_number, indi_list, network, reque
         
         # with open(file_name, "a") as file:
         #     file.write(f"Generation {str(i+1)}: {best_indi.objectives}\n") 
-        res_gen.append(best.objectives) 
+        res_gen.append(best.objectives)
+        res_gen.append(best.decision_tree.GetHumanExpression()) 
+        res_gen.append(best.ordering_tree.GetHumanExpression()) 
+        res_gen.append(best.choosing_tree.GetHumanExpression()) 
         # print("res gen: ", res_gen)
     pool.close()
     return best, res_gen
