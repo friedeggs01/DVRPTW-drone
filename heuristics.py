@@ -76,7 +76,7 @@ choosing_heu6 = TRC()
 indi_heu6 = Individual(decision_heu6, ordering_heu6, choosing_heu6)
 
 
-num_vehicle_list = [25]
+num_vehicle_list = [250]
 truck_capacity = 1300
 drone_capacity = 10
 drone_endurance = 30
@@ -85,7 +85,7 @@ start_train = 0
 end_train = 1000
 end_test = 1000
 
-folder_path = "data/100"
+folder_path = "data/1000"
 file_paths = collect_file_paths(folder_path)
 
 # Filter out unwanted files
@@ -95,7 +95,7 @@ list_file_path = [path for path in file_paths if path not in [
     'data/__pycache__/read_data.cpython-311.pyc'
 ]]
 
-data_store = "Heuristic_result.csv"
+data_store = "Heuristic_result_1000.csv"
 if os.path.exists(data_store):
     os.remove(data_store)
 with open(data_store, 'w') as f:
@@ -137,4 +137,4 @@ for data_path in list_file_path:
         heu6 = ((obj1_heu6 / carbon_upper) + (obj2_heu6 / reject_upper)) / 2
       
         with open(data_store, 'a') as f:
-            f.write("{},{},  {},{},{},{},{},{},  {},{}, {},{}, {},{}, {},{}, {},{}, {},{}\n".format(data_path[-12:], num_vehicle, heu1, heu2, heu3, heu4, heu5, heu6, obj1_heu1, obj2_heu1, obj1_heu2, obj2_heu2, obj1_heu3, obj2_heu3, obj1_heu4, obj2_heu4, obj1_heu5, obj2_heu5, obj1_heu6, obj2_heu6))
+            f.write("{},{},  {},{},{},{},{},{},  {},{}, {},{}, {},{}, {},{}, {},{}, {},{}\n".format(data_path[-15:], num_vehicle, heu1, heu2, heu3, heu4, heu5, heu6, obj1_heu1, obj2_heu1, obj1_heu2, obj2_heu2, obj1_heu3, obj2_heu3, obj1_heu4, obj2_heu4, obj1_heu5, obj2_heu5, obj1_heu6, obj2_heu6))
