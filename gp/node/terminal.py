@@ -2,9 +2,22 @@ from .baseline import Node
 
 import numpy as np
 
-###################### CHOOSING TREE #####################
+###################### ORDERING/DECISION TREE #####################
+# Only for decision tree
+# Maximum capacity of vehicle
+class MVC(Node):
+    def __init__(self):
+         super(MVC,self).__init__()
+    def __repr__(self):
+        return "MVC"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "MVC"
+    def getSymbol(self):
+        return "MVC"
+    def GetOutput(self, X):
+        return X.max_cap
 
-# Static terminal
+
 # Arrival time of request
 class ATR(Node):
     def __init__(self):
@@ -16,7 +29,6 @@ class ATR(Node):
     def getSymbol(self):
         return "ATR"
     def GetOutput(self, X):
-        # print("ATR: ", X.r.arrival)
         return X.r.arrival
 
 # Start date of request
@@ -30,7 +42,6 @@ class SDR(Node):
     def getSymbol(self):
         return "SDR"
     def GetOutput(self, X):
-        # print("SDR: ", X.r.tw_start)
         return X.r.tw_start
 
 # Time window end of request
@@ -44,50 +55,90 @@ class TWE(Node):
     def getSymbol(self):
         return "TWE"
     def GetOutput(self, X):
-        # print("TWE: ", X.r.tw_end)
         return X.r.tw_end
-    
-# distance to the customer being considered
-class DCC(Node):
-    def __init__(self):
-         super(DCC,self).__init__()
-    def __repr__(self):
-        return "DCC"
-    def _GetHumanExpressionSpecificNode(self, args):
-        return "DCC"
-    def getSymbol(self):
-        return "DCC"
-    def GetOutput(self, X):
-        # print("DCC: ", X.r.tw_end)
-        return X.r.tw_end
-    
-# customer can ready to served
-class CRS(Node):
-    def __init__(self):
-         super(CRS,self).__init__()
-    def __repr__(self):
-        return "CRS"
-    def _GetHumanExpressionSpecificNode(self, args):
-        return "CRS"
-    def getSymbol(self):
-        return "CRS"
-    def GetOutput(self, X):
-        # print("CRS: ", X.r.earliness)
-        return X.r.earliness
 
-# the amount of time till customer due date
-class CDS(Node):
+# Waiting time to ready of customer
+class WTR(Node):
     def __init__(self):
-         super(CDS,self).__init__()
+         super(WTR,self).__init__()
     def __repr__(self):
-        return "CDS"
+        return "WTR"
     def _GetHumanExpressionSpecificNode(self, args):
-        return "CDS"
+        return "WTR"
     def getSymbol(self):
-        return "CDS"
+        return "WTR"
     def GetOutput(self, X):
-        # print("CDS: ", X.r.lateness)
-        return X.r.lateness
+        if X.T >= X.r.tw_start:
+            return 0
+        return X.r.tw_start - X.T
+
+# Due date of request
+class DDR(Node):
+    def __init__(self):
+         super(DDR,self).__init__()
+    def __repr__(self):
+        return "DDR"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "DDR"
+    def getSymbol(self):
+        return "DDR"
+    def GetOutput(self, X):
+        return X.r.tw_end - X.T
+    
+# Demand of request
+class DEM(Node):
+    def __init__(self):
+         super(DEM,self).__init__()
+    def __repr__(self):
+        return "DEM"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "DEM"
+    def getSymbol(self):
+        return "DEM"
+    def GetOutput(self, X):
+        return X.r.customer_demand
+
+# Waiting time of request
+class PN(Node):
+    def __init__(self):
+         super(PN,self).__init__()
+    def __repr__(self):
+        return "PN"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "PN"
+    def getSymbol(self):
+        return "PN"
+    def GetOutput(self, X):
+        return X.T - X.r.arrival
+
+# Service time of request
+class ST(Node):
+    def __init__(self):
+         super(ST,self).__init__()
+    def __repr__(self):
+        return "ST"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "ST"
+    def getSymbol(self):
+        return "ST"
+    def GetOutput(self, X):
+        return X.r.service_time
+
+# Minimum distance to go to customer
+class MD(Node):
+    def __init__(self):
+         super(MD,self).__init__()
+    def __repr__(self):
+        return "MD"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "MD"
+    def getSymbol(self):
+        return "MD"
+    def GetOutput(self, X):
+        return X.min_distance
+
+
+############################ CHOOSING TREE ############################
 
 # truck total capacity
 class TTC(Node):
@@ -101,7 +152,7 @@ class TTC(Node):
         return "TTC"
     def GetOutput(self, X):
         # print("TTC: ", X.truck.capacity)
-        return X.truck.capacity
+        return X.network.truck_capacity
 
 # drone total capacity
 class DTC(Node):
@@ -115,51 +166,9 @@ class DTC(Node):
         return "DTC"
     def GetOutput(self, X):
         # print("DTC: ", X.drone.capacity)
-        return X.drone.capacity
+        return X.network.drone_capacity
 
-# drone total battery
-class DTB(Node):
-    def __init__(self):
-         super(DTB,self).__init__()
-    def __repr__(self):
-        return "DTB"
-    def _GetHumanExpressionSpecificNode(self, args):
-        return "DTB"
-    def getSymbol(self):
-        return "DTB"
-    def GetOutput(self, X):
-        # print("DTB: ", X.drone.battery)
-        return X.drone.battery
-    
-# Dynamic terminal
-# waiting time of request
-class WTR(Node):
-    def __init__(self):
-         super(WTR,self).__init__()
-    def __repr__(self):
-        return "WTR"
-    def _GetHumanExpressionSpecificNode(self, args):
-        return "WTR"
-    def getSymbol(self):
-        return "WTR"
-    def GetOutput(self, X):
-        # print("WTR: ")
-        return X.T - X.r.arrival
-
-# due date of request 
-class DDR(Node):
-    def __init__(self):
-         super(DDR,self).__init__()
-    def __repr__(self):
-        return "DDR"
-    def _GetHumanExpressionSpecificNode(self, args):
-        return "DDR"
-    def getSymbol(self):
-        return "DDR"
-    def GetOutput(self, X):
-        return X.r.tw_end - X.T
-    
-#  truck remain capacity
+# truck remain capacity
 class TRC(Node):
     def __init__(self):
          super(TRC,self).__init__()
@@ -170,33 +179,47 @@ class TRC(Node):
     def getSymbol(self):
         return "TRC"
     def GetOutput(self, X):
-        return X.truck.capacity - X.truck.used_capacity
+        return X.remaining_capacity
     
-# drone remain capacity at T
-# class DRC(Node):
-#     def __init__(self):
-#          super(DRC,self).__init__()
-#     def __repr__(self):
-#         return "DRC"
-#     def _GetHumanExpressionSpecificNode(self, args):
-#         return "DRC"
-#     def getSymbol(self):
-#         return "DRC"
-#     def GetOutput(self, X):
-#         return X.drone.remain_capacity[X.T]
+# path length
+class PL(Node):
+    def __init__(self):
+         super(PL,self).__init__()
+    def __repr__(self):
+        return "PL"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "PL"
+    def getSymbol(self):
+        return "PL"
+    def GetOutput(self, X):
+        return X.dis_sum
     
-# drone remain battery at T
-# class DRB(Node):
-#     def __init__(self):
-#          super(DRB,self).__init__()
-#     def __repr__(self):
-#         return "DRB"
-#     def _GetHumanExpressionSpecificNode(self, args):
-#         return "DRB"
-#     def getSymbol(self):
-#         return "DRB"
-#     def GetOutput(self, X):
-#         return X.drone.remain_capacity[X.T]
+# number of customers
+class NC(Node):
+    def __init__(self):
+         super(NC,self).__init__()
+    def __repr__(self):
+        return "NC"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "NC"
+    def getSymbol(self):
+        return "NC"
+    def GetOutput(self, X):
+        return X.numberCustomer 
+    
+# minimum distance of vehicle to go to customer
+class MDV(Node):
+    def __init__(self):
+         super(MDV,self).__init__()
+    def __repr__(self):
+        return "MDV"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "MDV"
+    def getSymbol(self):
+        return "MDV"
+    def GetOutput(self, X):
+        return X.min_distance
+
     
     
  ##############################################################   
@@ -211,6 +234,30 @@ class Rand(Node):
         return "Rand"
     def GetOutput(self, X):
         return np.random.rand()
+    
+class ZeroNode(Node):
+    def __init__(self):
+        super(ZeroNode, self).__init__()
+    def __repr__(self):
+        return "ZeroNode"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "ZeroNode"
+    def getSymbol(self):
+        return "ZeroNode"
+    def GetOutput(self, X):
+        return 0
+    
+class OneNode(Node):
+    def __init__(self):
+        super(OneNode, self).__init__()
+    def __repr__(self):
+        return "OneNode"
+    def _GetHumanExpressionSpecificNode(self, args):
+        return "OneNode"
+    def getSymbol(self):
+        return "OneNode"
+    def GetOutput(self, X):
+        return 1
       
 class Const(Node):
     def __init__(self):
@@ -231,3 +278,4 @@ class Const(Node):
         self.value = self.value + np.random.normal(0, 0.1)           
 
 ####################################################################
+

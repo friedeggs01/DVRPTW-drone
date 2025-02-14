@@ -1,7 +1,7 @@
 from copy import deepcopy
 class Population:
     def __init__(self, pop_size, 
-                 functions, decision_terminals, choosing_terminals, ordering_terminals, 
+                 functions, decision_terminals, ordering_terminals, choosing_terminals, 
                  min_height=2, max_height=8, initialization_max_tree_height=8, 
                  num_of_tour_particips=2, tournament_prob=0.8, crossover_rate=0.9, mutation_rate=0.1):
         self.history = []
@@ -24,24 +24,24 @@ class Population:
             raise ValueError("The length of the list of individuals is not equal to the population size")
         self.indivs = deepcopy(indi_list)
         
-    def random_init(self):
-        curr_max_height = self.min_height
-        init_height_interval = self.pop_size / (self.initialization_max_tree_height - self.min_height + 1)
-        next_height_interval = init_height_interval
-        i = 0
-        pc_check = set()
-        while i < self.pop_size:
-            if i >= next_height_interval:
-                next_height_interval += init_height_interval
-                curr_max_height += 1
-            inv = individual_init(self.min_height, curr_max_height, self.determining_tree, self.functions,
-                                  self.determining_terminals, self.ordering_terminals, self.choosing_terminals)
-            pc_indi = self.situation_surrogate.cal_pc(inv)
-            pc_indi_tuple = tuple(pc_indi)
-            if pc_indi_tuple not in pc_check:
-                pc_check.add(pc_indi_tuple)
-                inv.pc = pc_indi
-                self.indivs.append(inv)
-                i += 1
-            else:
-                continue
+    # def random_init(self):
+    #     curr_max_height = self.min_height
+    #     init_height_interval = self.pop_size / (self.initialization_max_tree_height - self.min_height + 1)
+    #     next_height_interval = init_height_interval
+    #     i = 0
+    #     pc_check = set()
+    #     while i < self.pop_size:
+    #         if i >= next_height_interval:
+    #             next_height_interval += init_height_interval
+    #             curr_max_height += 1
+    #         inv = individual_init(self.min_height, curr_max_height, self.determining_tree, self.functions,
+    #                               self.determining_terminals, self.ordering_terminals, self.choosing_terminals)
+    #         pc_indi = self.situation_surrogate.cal_pc(inv)
+    #         pc_indi_tuple = tuple(pc_indi)
+    #         if pc_indi_tuple not in pc_check:
+    #             pc_check.add(pc_indi_tuple)
+    #             inv.pc = pc_indi
+    #             self.indivs.append(inv)
+    #             i += 1
+    #         else:
+    #             continue

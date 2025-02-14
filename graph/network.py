@@ -47,7 +47,7 @@ class Network:
             self.drones[i] = Drone(i, drone_capacity)
             
         for i in range(num_vehicle):
-            self.routes[i] = [1000]
+            self.routes[i] = [-1]
         
     def check_constraint(self, request, vehicle_id): # tìm đường đầu tiên thỏa mãn constraint cho request
         network = deepcopy(self)
@@ -57,6 +57,7 @@ class Network:
         return False
     
     def update_pre_service_time(self, service_time):
+        # print("Update_pre_service_time: ", service_time)
         self.pre_service_time = service_time
         
  

@@ -7,7 +7,8 @@ from gp.population.individual import Individual
 
 # Randomly individual initialization
 def individual_init(min_height, curr_max_depth,
-                    functions, decision_terminals, ordering_terminals, choosing_terminals, decision_tree=None, ordering_tree=None, choosing_tree=None):
+                    functions, decision_terminals, ordering_terminals, choosing_terminals, 
+                    decision_tree=None, ordering_tree=None, choosing_tree=None):
         decision_tree = deepcopy(decision_tree)
         if decision_tree is None:
             decision_tree = GenerateRandomTree(functions, decision_terminals, curr_max_depth, 
@@ -26,9 +27,7 @@ def individual_init(min_height, curr_max_depth,
                                             curr_height=0, 
                                             method='grow' if np.random.random() < .5 else 'full', 
                                             min_height= min_height )
-            print("Inside initialize choosing_tree: ", choosing_tree.GetHumanExpression())
         inv = Individual(decision_tree, ordering_tree, choosing_tree)
-        print("Individual: ", inv)
         return inv
 
 # Randomly population initialization 
@@ -44,8 +43,8 @@ def random_population_init(pop_size, min_height, initialization_max_tree_height,
             curr_max_depth += 1
         inv = individual_init(min_height, curr_max_depth,
                         functions, decision_terminals, ordering_terminals, choosing_terminals, decision_tree, ordering_tree, choosing_tree)
-        print("Initialize orering tree: ", inv.choosing_tree.GetHumanExpression())      
-        print("Initialize choosing tree: ", inv.choosing_tree.GetHumanExpression())
+        # print("Initialize orering tree: ", inv.choosing_tree.GetHumanExpression())      
+        # print("Initialize choosing tree: ", inv.choosing_tree.GetHumanExpression())
         indi_list.append(inv)
     return indi_list
 
