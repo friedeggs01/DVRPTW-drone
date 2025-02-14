@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # Algorithm parameters
     num_pro = 10
     pop_size = 100
-    max_gen = 10
+    max_gen = 3
     min_height = 2
     max_height = 8
     initialization_max_height = 4
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # Node of tree
     function = [AddNode(), SubNode(), MulNode(), DivNode(), MaxNode(), MinNode()]
-    terminal_decision = [MVC(), ATR(), SDR(), TWE(), WTR(), DDR(), DEM(), PN(), ST(), MD(), Const()]
+    terminal_decision = [Const()]
     terminal_ordering = [ATR(), SDR(), TWE(), WTR(), DDR(), DEM(), PN(), ST(), MD(), Const()]
     terminal_choosing = [TTC(), DTC(), TRC(), PL(), NC(), MDV(), Const()]
 
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         print("data_path: ", data_path)
         if '1000' in data_path:
             for veh in num_vehicle_1000:
-                decision_tree = None
+                decision_tree = OneNode()
                 ordering_tree = None
                 choosing_tree = None
 
@@ -94,6 +94,8 @@ if __name__ == "__main__":
                 os.makedirs(os.path.dirname(file_name), exist_ok=True)
                 print("result file: ", file_name)
                 with open(file_name, "a") as file:
+                    file.write(str(result[0]) + '\n')
+                    file.write(str(result[1]) + '\n')
                     for res in res_gen:
                         res = ' '.join(map(str, res))
                         file.write(res + '\n') 
